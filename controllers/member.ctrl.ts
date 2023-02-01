@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import MemberModel from '@/models/member/member_model';
 import BadReqError from './error/bad_request_error';
-import { responseSymbol } from 'next/dist/server/web/spec-compliant/fetch-event';
 
 async function add(req: NextApiRequest, res: NextApiResponse) {
   const { uid, email, displayName, photoURL } = req.body;

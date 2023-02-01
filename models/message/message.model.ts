@@ -5,7 +5,7 @@ import { InMessage, InMessageServer } from './in_message';
 import { InAuthUser } from '../in_auth_user';
 const MEMBER_COL = 'members';
 const MSG_COL = 'MESSAGES';
-const SCR_NAME_COL = 'screen_names';
+// const SCR_NAME_COL = 'screen_names';
 
 const Firestore = FirebaseAdmin.getInstance().Firestore;
 
