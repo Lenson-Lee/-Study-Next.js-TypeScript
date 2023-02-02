@@ -5,9 +5,10 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:import/typescript',
     'plugin:prettier/recommended',
+    'babel-eslint',
     'prettier',
   ],
-  plugins: ['@typescript-eslint', 'prettier', 'react-hooks'],
+  plugins: ['babel-eslint', '@typescript-eslint', 'prettier', 'react-hooks'],
   parserOptions: {
     ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
     sourceType: 'module', // Allows for the use of imports
