@@ -92,7 +92,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   // 변경되었을때 자동으로 API core을 뿌릴거라 useEffect 사용
   // async function fetchMessageList(uid: string) {
   //   try {
-  //     const resp = await fetch(`/api/messages.list?uid=${uid}&page=${page}&size=3`);
+  //     const resp = await fetch(`/api/messages.list?uid=${uid}&page=${page}&size=10`);
   //     if (resp.status === 200) {
   //       const data: {
   //         totalElements: number;
@@ -143,7 +143,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
         page: number;
         size: number;
         content: InMessage[];
-      }>(`/api/messages.list?uid=${userInfo?.uid}&page=${page}&size=3`),
+      }>(`/api/messages.list?uid=${userInfo?.uid}&page=${page}&size=10`),
     {
       keepPreviousData: true,
       refetchOnWindowFocus: false,

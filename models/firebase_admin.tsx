@@ -22,6 +22,7 @@ export default class FirebaseAdmin {
     }
     return FirebaseAdmin.instance;
   }
+
   private bootstrap(): void {
     // apps에 등록되어있는 앱이 있을 때 (갯수가 0이 아닐 때)
     const haveApp = admin.apps.length !== 0;
