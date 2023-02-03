@@ -1,7 +1,7 @@
-import PrintText from '@/components/print_text';
+import { useRouter } from 'next/router';
 import { Box, Img } from '@chakra-ui/react';
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import PrintText from '@/components/print_text';
 
 const OpenGraphImgPage: NextPage = function () {
   const { query } = useRouter();

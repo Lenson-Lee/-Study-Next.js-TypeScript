@@ -14,10 +14,10 @@ import {
   Textarea,
   useToast,
 } from '@chakra-ui/react';
-import { InMessage } from '@/models/message/in_message';
-import convertDateToString from '@/utils/convert_date_to_string';
 import ResizeTextarea from 'react-textarea-autosize';
 import { useState } from 'react';
+import { InMessage } from '@/models/message/in_message';
+import convertDateToString from '@/utils/convert_date_to_string';
 import MoreBtnIcon from './more_btn_icon';
 import FirebaseClient from '@/models/firebase_client';
 
@@ -81,7 +81,7 @@ const MessageItem = function ({ uid, screenName, displayName, photoURL, item, is
   }
 
   const haveReply = item.reply !== undefined;
-  const isDeny = item.deny != undefined ? item.deny === true : false;
+  const isDeny = item.deny !== undefined ? item.deny === true : false;
   return (
     <Box borderRadius="md" width="full" bg="white" boxShadow="md">
       <Box>
@@ -111,7 +111,7 @@ const MessageItem = function ({ uid, screenName, displayName, photoURL, item, is
               <MenuList>
                 <MenuItem
                   onClick={() => {
-                    updateMessage({ deny: !item.deny != undefined ? !item.deny : true });
+                    updateMessage({ deny: !item.deny !== undefined ? !item.deny : true });
                   }}
                 >
                   {isDeny ? '비공개 처리 해제' : '비공개 처리'}

@@ -22,7 +22,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es5",
+    "target": "es6",
     "incremental": true
   },
   "exclude": ["node_modules", "next.config.js", "shorturl.js", "sentry.js", "injectEnv.js"],

@@ -29,7 +29,7 @@ async function post({
       throw new CustomServerError({ statusCode: 400, message: '존재하지 않는 사용자에용' });
     }
     const memberInfo = memberDoc.data() as InAuthUser & { messageCount?: number };
-    if (memberInfo.messageCount != undefined) {
+    if (memberInfo.messageCount !== undefined) {
       messageCount = memberInfo.messageCount;
     }
     const newMessageRef = memberRef.collection(MSG_COL).doc();
@@ -122,7 +122,7 @@ async function listWithPage({ uid, page = 1, size = 10 }: { uid: string; page?: 
     //페이지 세는 법..
     const memberInfo = memberDoc.data() as InAuthUser & { messageCount?: number };
     const { messageCount = 0 } = memberInfo;
-    const totalElements = messageCount != 0 ? messageCount - 1 : 0;
+    const totalElements = messageCount !== 0 ? messageCount - 1 : 0;
     /** 나머지 */
     const remains = totalElements % size;
     /** 총 페이지 수(나머지가 있으면 마지막 페이지 1개 추가생성) */
@@ -138,7 +138,7 @@ async function listWithPage({ uid, page = 1, size = 10 }: { uid: string; page?: 
     const data = messageColDoc.docs.map((mv) => {
       //mv:mapvalue의 줄이말
       const docData = mv.data() as Omit<InMessageServer, 'id'>;
-      const isDeny = docData.deny != undefined && docData.deny === true;
+      const isDeny = docData.deny !== undefined && docData.deny === true;
       const returnData = {
         ...docData,
         id: mv.id,
@@ -170,7 +170,7 @@ async function get({ uid, messageId }: { uid: string; messageId: string }) {
     }
 
     const messageData = messageDoc.data() as InMessageServer;
-    const isDeny = messageData.deny != undefined && messageData.deny === true;
+    const isDeny = messageData.deny !== undefined && messageData.deny === true;
     return {
       ...messageData,
       message: isDeny ? '비공개 처리된 메시지 입니다.' : messageData.message,
@@ -197,7 +197,7 @@ async function postReply({ uid, messageId, reply }: { uid: string; messageId: st
     }
 
     const messageData = messageDoc.data() as InMessageServer;
-    if (messageData.reply != undefined) {
+    if (messageData.reply !== undefined) {
       throw new CustomServerError({ statusCode: 400, message: '이미 댓글을 입력했습니다.' });
     }
     await transaction.update(messageRef, { reply, replyAt: firestore.FieldValue.serverTimestamp() });

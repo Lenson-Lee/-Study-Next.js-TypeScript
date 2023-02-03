@@ -1,6 +1,4 @@
-import { ServiceLayout } from '@/components/service_layout';
-import { UseAuth } from '@/contexts/auth_user.context';
-import { InAuthUser } from '@/models/in_auth_user';
+import { useQuery } from 'react-query';
 import {
   Box,
   Avatar,
@@ -21,7 +19,9 @@ import ResizeTextArea from 'react-textarea-autosize';
 import axios, { AxiosResponse } from 'axios';
 import MessageItem from '@/components/message_item';
 import { InMessage } from '@/models/message/in_message';
-import { useQuery } from 'react-query';
+import { InAuthUser } from '@/models/in_auth_user';
+import { UseAuth } from '@/contexts/auth_user.context';
+import { ServiceLayout } from '@/components/service_layout';
 // import { TriangleDownIcon } from '@chakra-ui/icons';
 // const userInfo = {
 //   uid: 'test',
@@ -136,6 +136,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   useQuery(
     messageListQueryKey,
     async () =>
+      // eslint-disable-next-line no-return-await
       await axios.get<{
         totalElements: number;
         totalPages: number;
@@ -169,7 +170,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
     return <p>사용자를 찾을 수 없습니다.</p>;
   }
 
-  const isOwner = authUser != null && authUser.uid === userInfo.uid;
+  const isOwner = authUser !== null && authUser.uid === userInfo.uid;
   return (
     <ServiceLayout title={`${userInfo.displayName}의 홈`} minH="100vh" backgroundColor="gray.50">
       <Box maxW="md" mx="auto" pt="6">
@@ -273,23 +274,21 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
           </FormControl>
         </Box>
         <VStack spacing="12px" mt="6">
-          {messageList.map((msgData) => {
-            return (
-              <MessageItem
-                key={`messageItem ${userInfo.uid} - ${msgData.id}`}
-                item={msgData}
-                uid={userInfo.uid}
-                screenName={screenName}
-                displayName={userInfo.displayName ?? ''}
-                photoURL={userInfo.photoURL ?? 'https://bit.ly/broken-link'}
-                isOwner={isOwner}
-                onSendComplete={() => {
-                  // setMessageListFetchTrigger((prev) => !prev);
-                  fetchMessageInfo({ uid: userInfo.uid, messageId: msgData.id });
-                }}
-              />
-            );
-          })}
+          {messageList.map((msgData) => (
+            <MessageItem
+              key={`messageItem ${userInfo.uid} - ${msgData.id}`}
+              item={msgData}
+              uid={userInfo.uid}
+              screenName={screenName}
+              displayName={userInfo.displayName ?? ''}
+              photoURL={userInfo.photoURL ?? 'https://bit.ly/broken-link'}
+              isOwner={isOwner}
+              onSendComplete={() => {
+                // setMessageListFetchTrigger((prev) => !prev);
+                fetchMessageInfo({ uid: userInfo.uid, messageId: msgData.id });
+              }}
+            />
+          ))}
         </VStack>
         {totalPages > page && (
           <Button

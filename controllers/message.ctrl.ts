@@ -81,7 +81,7 @@ async function updateMessage(req: NextApiRequest, res: NextApiResponse) {
   if (uid === undefined) {
     throw new BadReqError('uid 누락');
   }
-  if (uid != tokenUid) {
+  if (uid !== tokenUid) {
     throw new CustomServerError({ statusCode: 401, message: '수정 권한이 없습니다.' });
   }
   if (messageId === undefined) {

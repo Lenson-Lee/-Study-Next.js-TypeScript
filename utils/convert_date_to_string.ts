@@ -21,7 +21,7 @@ function convertDateToString(dateString: string): string {
       days === 0 &&
       hours === 0 &&
       minutes === 0 &&
-      seconds != undefined &&
+      seconds !== undefined &&
       seconds === 0) ||
     seconds < 1
   ) {

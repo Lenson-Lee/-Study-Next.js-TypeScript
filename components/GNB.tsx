@@ -1,5 +1,5 @@
-import { UseAuth } from '@/contexts/auth_user.context';
 import { Box, Button, Flex, Spacer } from '@chakra-ui/react';
+import { UseAuth } from '@/contexts/auth_user.context';
 
 const GNB = function () {
   const { loading, authUser, signOut } = UseAuth();

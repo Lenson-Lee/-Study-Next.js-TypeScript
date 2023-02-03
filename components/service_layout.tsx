@@ -8,6 +8,7 @@ interface Props {
 }
 
 export const ServiceLayout: React.FC<Props & BoxProps> = function ({ title = 'blah x2', children, ...boxProps }) {
+  /* eslint-disable react/jsx-props-no-spreading */
   return (
     <Box {...boxProps}>
       <Head>

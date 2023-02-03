@@ -5,8 +5,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import playwright from 'playwright-core';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const localChromiumPath = process.env.NODE_ENV != 'development' ? '' : process.env.LOCAL_CHROME_PATH ?? '';
-  if (process.env.NODE_ENV != 'development') {
+  const localChromiumPath = process.env.NODE_ENV !== 'development' ? '' : process.env.LOCAL_CHROME_PATH ?? '';
+  if (process.env.NODE_ENV !== 'development') {
     //develop이 아니고 production 환경이라면 pretendatd.ttf 파일을 가져와야함
     const protocol = process.env.PROTOCOL || 'http';
     const host = process.env.HOST || 'localhost';
@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const browser = await playwright.chromium.launch({
     args: chromium.args,
     executablePath: process.env.NODE_ENV !== 'development' ? await chromium.executablePath : localChromiumPath,
-    headless: process.env.NODE_ENV != 'development' ? chromium.headless : true,
+    headless: process.env.NODE_ENV !== 'development' ? chromium.headless : true,
   });
 
   const page = await browser.newPage({

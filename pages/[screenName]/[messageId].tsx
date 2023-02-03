@@ -1,15 +1,15 @@
-import { ServiceLayout } from '@/components/service_layout';
-import { UseAuth } from '@/contexts/auth_user.context';
-import { InAuthUser } from '@/models/in_auth_user';
+import Head from 'next/head';
+import Link from 'next/link';
 import { Avatar, Box, Button, Flex, Text } from '@chakra-ui/react';
 
 import { GetServerSideProps, NextPage } from 'next';
 import { useState } from 'react';
 import axios, { AxiosResponse } from 'axios';
+import { InAuthUser } from '@/models/in_auth_user';
+import { UseAuth } from '@/contexts/auth_user.context';
+import { ServiceLayout } from '@/components/service_layout';
 import MessageItem from '@/components/message_item';
 import { InMessage } from '@/models/message/in_message';
-import Link from 'next/link';
-import Head from 'next/head';
 
 interface Props {
   userInfo: InAuthUser | null;
@@ -41,7 +41,7 @@ const MessagePage: NextPage<Props> = function ({ userInfo, messageData: initMsgD
     return <p>메시지 정보가 없습니다.</p>;
   }
 
-  const isOwner = authUser != null && authUser.uid === userInfo.uid;
+  const isOwner = authUser !== null && authUser.uid === userInfo.uid;
   const metaImgUrl = `${baseUrl}/open-graph-img?text=${encodeURIComponent(messageData.message)}`;
   const thumbnailImgUrl = `${baseUrl}/api/thumbnail?url=${encodeURIComponent(metaImgUrl)}`;
   return (

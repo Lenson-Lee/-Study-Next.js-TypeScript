@@ -5,10 +5,9 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:import/typescript',
     'plugin:prettier/recommended',
-    'babel-eslint',
     'prettier',
   ],
-  plugins: ['babel-eslint', '@typescript-eslint', 'prettier', 'react-hooks'],
+  plugins: ['@typescript-eslint', 'prettier', 'react-hooks'],
   parserOptions: {
     ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
     sourceType: 'module', // Allows for the use of imports
@@ -17,11 +16,9 @@ module.exports = {
     },
     project: './tsconfig.json',
   },
-  parser: 'babel-eslint',
   env: {
     browser: true,
     jest: true,
-    es6: true,
     node: true,
   },
   globals: {
@@ -92,7 +89,7 @@ module.exports = {
         avoidEscape: true,
       },
     ],
-    'prettier/prettier': 'error',
+    'prettier/prettier': ['error', { endOfLine: 'auto' }],
     'jsx-a11y/href-no-hash': 'off',
     'jsx-a11y/anchor-is-valid': [
       'warn',
