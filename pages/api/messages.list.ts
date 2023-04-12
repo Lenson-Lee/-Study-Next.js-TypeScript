@@ -6,6 +6,7 @@ import MessageCtrl from '@/controllers/message.ctrl';
 // members.add.ts 복북
 // POST만 할 예정
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log('🐰 list : ', req.query);
   const { method } = req;
   const supportMethod = ['GET'];
   try {
