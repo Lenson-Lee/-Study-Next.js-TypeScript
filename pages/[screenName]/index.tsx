@@ -148,7 +148,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
         page: number;
         size: number;
         content: InMessage[];
-      }>(`/api/messages.list?uid=${authUser?.uid}&page=${page}&size=10`),
+      }>(`/api/messages.list?uid=${userInfo?.uid}&page=${page}&size=10`),
     {
       keepPreviousData: true,
       refetchOnWindowFocus: false,
@@ -341,7 +341,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
     const userInfoResp: AxiosResponse<InAuthUser> = await axios(`${baseUrl}/api/user.info/${screenName}`);
 
     // console.info(userInfoResp.data);
-    console.log('🐣 SSR userInfoResp : ', userInfoResp);
+    console.log('🐣 SSR userInfoResp.data : ', userInfoResp.data);
     return {
       props: {
         userInfo: userInfoResp.data ?? null,
