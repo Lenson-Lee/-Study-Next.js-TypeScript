@@ -13,7 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { GetServerSideProps, NextPage } from 'next';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import ResizeTextArea from 'react-textarea-autosize';
 import axios, { AxiosResponse } from 'axios';
 import MessageItem from '@/components/message_item';
