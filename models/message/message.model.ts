@@ -85,7 +85,7 @@ async function updateMessage({ uid, messageId, deny }: { uid: string; messageId:
   return result;
 }
 
-/** get */
+/** get - 현재 listWithPage 사용 */
 async function list({ uid }: { uid: string }) {
   const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
 
@@ -118,7 +118,7 @@ async function list({ uid }: { uid: string }) {
   return listData;
 }
 
-//
+/** get - 현재 페이징 기능과 함께 사용중 */
 async function listWithPage({ uid, page = 1, size = 10 }: { uid: string; page?: number; size?: number }) {
   const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
 

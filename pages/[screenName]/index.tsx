@@ -87,10 +87,10 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const { authUser } = UseAuth();
 
   useEffect(() => {
-    console.log('마이페이지 userInfo : ', userInfo);
+    console.log('처음 마이페이지 userInfo : ', userInfo);
   }, []);
   useEffect(() => {
-    console.log('마이페이지 userInfo : ', userInfo);
+    console.log('변경사항 있는 마이페이지 userInfo : ', userInfo);
   }, [userInfo]);
   // 사용자들이 질문을 남긴 목록을 조회
   // user id를 알아야 하기 때문에 authUser가 null이 아닐때만 동작
@@ -163,11 +163,13 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
     },
   );
 
-  // useEffect(() => {
-  //   // if (userInfo === null) {
-  //   // }
-  //   // fetchMessageList(userInfo.uid);
-  // }, [userInfo, authUser, messageListFetchTrigger, page]);
+  useEffect(() => {
+    if (userInfo === null) {
+      console.log('[index] / userInfo가 왜 null ㅜㅜ?');
+      console.log('[index] / authUser : ', authUser);
+    }
+    // fetchMessageList(userInfo.uid);
+  }, [userInfo, authUser, messageListFetchTrigger, page]);
 
   //
   if (userInfo === null) {
@@ -314,6 +316,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) => {
   const { screenName } = query;
+  console.log('💦 [screenName] SSR query : ', query);
   if (screenName === undefined) {
     console.info('😡 라우터에 screenName이 없어요!');
     return {
@@ -328,6 +331,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
   // 서버사이드이기때문에 '/'만으로는 위치를 몰라 baseURL 생성
 
   const screenNameToStr = Array.isArray(screenName) ? screenName[0] : screenName;
+  console.log('🐣 SSR screenNameToStr : ', screenNameToStr);
   try {
     const protocol = process.env.PROTOCOL || 'http';
     const host = process.env.HOST || 'localhost';
@@ -338,7 +342,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
 
     // console.info(userInfoResp.data);
     console.log('🐣 SSR userInfoResp : ', userInfoResp);
-    console.log('🐣 SSR screenNameToStr : ', screenNameToStr);
     return {
       props: {
         userInfo: userInfoResp.data ?? null,

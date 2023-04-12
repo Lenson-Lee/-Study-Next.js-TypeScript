@@ -18,6 +18,7 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
 
 async function list(req: NextApiRequest, res: NextApiResponse) {
   const { uid, page, size } = req.query;
+  console.log('🌊 message.ctrl <list> 쿼리 : ', uid, page, size);
   if (uid === undefined) {
     throw new BadReqError('uid 누락');
   }
@@ -26,6 +27,8 @@ async function list(req: NextApiRequest, res: NextApiResponse) {
   const uidToStr = Array.isArray(uid) ? uid[0] : uid;
   const pageToStr = Array.isArray(convertPage) ? convertPage[0] : convertPage;
   const sizeToStr = Array.isArray(convertSize) ? convertSize[0] : convertSize;
+
+  console.log('🌊 message.ctrl String : ', uidToStr, pageToStr, sizeToStr);
   const listResp = await MessageModel.listWithPage({
     uid: uidToStr,
     page: parseInt(pageToStr, 10),
@@ -36,6 +39,8 @@ async function list(req: NextApiRequest, res: NextApiResponse) {
 
 async function get(req: NextApiRequest, res: NextApiResponse) {
   const { uid, messageId } = req.query;
+
+  console.log('🍉 message.ctrl <get>쿼리 : ', uid, messageId);
   if (uid === undefined) {
     throw new BadReqError('uid 누락');
   }
