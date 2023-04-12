@@ -87,8 +87,11 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const { authUser } = UseAuth();
 
   useEffect(() => {
-    console.log('처음 : ', userInfo, page);
+    console.log('마이페이지 userInfo : ', userInfo);
   }, []);
+  useEffect(() => {
+    console.log('마이페이지 userInfo : ', userInfo);
+  }, [userInfo]);
   // 사용자들이 질문을 남긴 목록을 조회
   // user id를 알아야 하기 때문에 authUser가 null이 아닐때만 동작
   // 변경되었을때 자동으로 API core을 뿌릴거라 useEffect 사용
@@ -312,6 +315,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
 export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) => {
   const { screenName } = query;
   if (screenName === undefined) {
+    console.info('😡 라우터에 screenName이 없어요!');
     return {
       props: {
         userInfo: null,
@@ -333,6 +337,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
     const userInfoResp: AxiosResponse<InAuthUser> = await axios(`${baseUrl}/api/user.info/${screenName}`);
 
     // console.info(userInfoResp.data);
+    console.log('🐣 SSR userInfoResp : ', userInfoResp);
+    console.log('🐣 SSR screenNameToStr : ', screenNameToStr);
     return {
       props: {
         userInfo: userInfoResp.data ?? null,
@@ -340,7 +346,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
       },
     };
   } catch (err) {
-    console.error(err);
+    console.error('😡 [screenName]/index 오류 : ', err);
     return {
       props: {
         userInfo: null,
