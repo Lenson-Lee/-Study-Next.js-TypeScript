@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { InAuthUser } from '@/models/in_auth_user';
 import { GoogleAuthProvider, signInWithPopup, User } from 'firebase/auth';
+import { InAuthUser } from '@/models/in_auth_user';
 import FirebaseClient from '@/models/firebase_client';
 
 export default function useFirebaseAuth() {

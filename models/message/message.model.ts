@@ -1,13 +1,14 @@
+import { firestore } from 'firebase-admin';
 import FirebaseAdmin from '../firebase_admin';
 import CustomServerError from '@/controllers/error/custom_server_error';
-import { firestore } from 'firebase-admin';
 import { InMessage, InMessageServer } from './in_message';
 import { InAuthUser } from '../in_auth_user';
+
 const MEMBER_COL = 'members';
 const MSG_COL = 'MESSAGES';
 // const SCR_NAME_COL = 'screen_names';
 
-const Firestore = FirebaseAdmin.getInstance().Firestore;
+const { Firestore } = FirebaseAdmin.getInstance();
 
 async function post({
   uid,

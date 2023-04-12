@@ -14,8 +14,9 @@ async function add(req: NextApiRequest, res: NextApiResponse) {
   const addResult = await MemberModel.add({ uid, email, displayName, photoURL });
   if (addResult.result === true) {
     return res.status(200).json(addResult);
-  } else {
-    res.status(500).json(addResult);
+  }
+  if (addResult.result === false) {
+    return res.status(500).json(addResult);
   }
 }
 

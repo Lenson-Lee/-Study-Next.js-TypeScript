@@ -1,6 +1,6 @@
+import React, { createContext, useContext } from 'react';
 import useFirebaseAuth from '@/hooks/use_firebase_auth';
 import { InAuthUser } from '@/models/in_auth_user';
-import React, { createContext, useContext } from 'react';
 
 interface InAuthUserContext {
   authUser: InAuthUser | null;

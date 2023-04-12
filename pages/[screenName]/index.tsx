@@ -12,9 +12,8 @@ import {
   FormLabel,
   VStack,
 } from '@chakra-ui/react';
-
 import { GetServerSideProps, NextPage } from 'next';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ResizeTextArea from 'react-textarea-autosize';
 import axios, { AxiosResponse } from 'axios';
 import MessageItem from '@/components/message_item';
@@ -159,11 +158,10 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   );
 
   // useEffect(() => {
-  //   if (userInfo === null) {
-  //     return;
-  //   }
-  //   fetchMessageList(userInfo.uid);
-  // }, [userInfo, messageListFetchTrigger, page]);
+  //   // if (userInfo === null) {
+  //   // }
+  //   // fetchMessageList(userInfo.uid);
+  // }, [userInfo, authUser, messageListFetchTrigger, page]);
 
   //
   if (userInfo === null) {
@@ -318,6 +316,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
       },
     };
   }
+
   // 서버사이드에서 작동해서 fetch 사용불가. node.js에서 사용하는 라이브러리나 axios를 fetch해야함
   // 서버사이드이기때문에 '/'만으로는 위치를 몰라 baseURL 생성
 

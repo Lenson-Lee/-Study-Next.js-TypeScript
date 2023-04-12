@@ -29,9 +29,8 @@ async function add({ uid, displayName, email, photoURL }: InAuthUser): Promise<A
     });
     if (addResult === false) {
       return { result: true, id: uid };
-    } else {
-      return { result: true, id: uid };
     }
+    return { result: true, id: uid };
   } catch (err) {
     console.error(err);
     /** server side쪽의 에러 */

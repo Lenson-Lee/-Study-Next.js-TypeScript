@@ -1,6 +1,6 @@
+import { NextApiRequest, NextApiResponse } from 'next';
 import FirebaseAdmin from '@/models/firebase_admin';
 import MessageModel from '@/models/message/message.model';
-import { NextApiRequest, NextApiResponse } from 'next';
 import BadReqError from './error/bad_request_error';
 import CustomServerError from './error/custom_server_error';
 

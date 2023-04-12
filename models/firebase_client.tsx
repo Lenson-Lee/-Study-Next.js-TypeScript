@@ -13,6 +13,7 @@ const FirebaseCredentials = {
 
 export default class FirebaseClient {
   private static instance: FirebaseClient;
+
   private auth: Auth;
 
   public constructor() {
