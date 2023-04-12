@@ -86,12 +86,6 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const toast = useToast();
   const { authUser } = UseAuth();
 
-  useEffect(() => {
-    console.log('처음 마이페이지 userInfo : ', userInfo);
-  }, []);
-  useEffect(() => {
-    console.log('변경사항 있는 마이페이지 userInfo : ', userInfo);
-  }, [userInfo]);
   // 사용자들이 질문을 남긴 목록을 조회
   // user id를 알아야 하기 때문에 authUser가 null이 아닐때만 동작
   // 변경되었을때 자동으로 API core을 뿌릴거라 useEffect 사용
@@ -162,14 +156,6 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
       },
     },
   );
-
-  useEffect(() => {
-    if (userInfo === null) {
-      console.log('[index] / userInfo가 왜 null ㅜㅜ?');
-      console.log('[index] / authUser : ', authUser);
-    }
-    // fetchMessageList(userInfo.uid);
-  }, [userInfo, authUser, messageListFetchTrigger, page]);
 
   //
   if (userInfo === null) {
@@ -316,7 +302,6 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) => {
   const { screenName } = query;
-  console.log('💦 [screenName] SSR query : ', query);
   if (screenName === undefined) {
     console.info('😡 라우터에 screenName이 없어요!');
     return {
@@ -331,7 +316,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
   // 서버사이드이기때문에 '/'만으로는 위치를 몰라 baseURL 생성
 
   const screenNameToStr = Array.isArray(screenName) ? screenName[0] : screenName;
-  console.log('🐣 SSR screenNameToStr : ', screenNameToStr);
+
   try {
     const protocol = process.env.PROTOCOL || 'http';
     const host = process.env.HOST || 'localhost';
@@ -340,8 +325,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
     //any같은게 들어와서 뭘 받을지 특정한다.
     const userInfoResp: AxiosResponse<InAuthUser> = await axios(`${baseUrl}/api/user.info/${screenName}`);
 
-    // console.info(userInfoResp.data);
-    console.log('🐣 SSR userInfoResp.data : ', userInfoResp.data);
     return {
       props: {
         userInfo: userInfoResp.data ?? null,

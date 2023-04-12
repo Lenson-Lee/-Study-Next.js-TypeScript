@@ -8,7 +8,6 @@ import checkSupportMethod from '@/controllers/error/check_support_method';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
-  console.log('☘ user.info : ', method);
   const supportMethod = ['GET'];
   try {
     checkSupportMethod(supportMethod, method);

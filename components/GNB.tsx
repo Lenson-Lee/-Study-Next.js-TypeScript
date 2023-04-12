@@ -1,11 +1,20 @@
 import { Avatar, Box, Button, Flex, IconButton, Menu, MenuButton, MenuItem, MenuList, Spacer } from '@chakra-ui/react';
+import Link from 'next/link';
 import { UseAuth } from '@/contexts/auth_user.context';
 
 const GNB = function () {
   const { loading, authUser, signOut } = UseAuth();
 
+  const { signInWithGoogle } = UseAuth();
   const loginBtn = (
-    <Button fontSize="sm" fontWeight="600" color="white" bg="pink.300" _hover={{ bg: 'pink.400' }}>
+    <Button
+      onClick={signInWithGoogle}
+      fontSize="sm"
+      fontWeight="600"
+      color="white"
+      bg="pink.300"
+      _hover={{ bg: 'pink.400' }}
+    >
       로그인
     </Button>
   );
@@ -37,7 +46,9 @@ const GNB = function () {
       <Flex minW="60px" py={{ base: 2 }} px={{ base: 4 }} align="center" maxW="md" mx="auto">
         <Spacer />
         <Box flex="1">
-          <img style={{ height: '40px' }} src="/logo.svg" alt="logo" />
+          <Link href="/">
+            <img style={{ height: '40px' }} src="/logo.svg" alt="logo" />
+          </Link>
         </Box>
         <Box justifyContent="flex-end">{authInitialized ? loginBtn : logoutBtn}</Box>
       </Flex>

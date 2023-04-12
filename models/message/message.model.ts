@@ -27,8 +27,6 @@ async function post({
     let messageCount = 1;
     const memberDoc = await transaction.get(memberRef);
 
-    console.log('🤔 memberRef : ', memberRef);
-    console.log('🤔 memberDoc 여부 : ', memberDoc.exists);
     if (memberDoc.exists === false) {
       throw new CustomServerError({ statusCode: 400, message: '존재하지 않는 사용자에용' });
     }
@@ -89,12 +87,9 @@ async function updateMessage({ uid, messageId, deny }: { uid: string; messageId:
 async function list({ uid }: { uid: string }) {
   const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
 
-  console.log('🐹 uid : ', uid);
-  console.log('🐹 memberRef 여부 : ', memberRef);
   const listData = await Firestore.runTransaction(async (transaction) => {
     const memberDoc = await transaction.get(memberRef);
 
-    console.log('🐹 memberDoc 여부 : ', memberDoc.exists);
     if (memberDoc.exists === false) {
       throw new CustomServerError({ statusCode: 400, message: '존재하지 않는 사용자에용' });
     }
@@ -122,12 +117,9 @@ async function list({ uid }: { uid: string }) {
 async function listWithPage({ uid, page = 1, size = 10 }: { uid: string; page?: number; size?: number }) {
   const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
 
-  console.log('🌱 uid : ', uid);
-  console.log('🌱 memberRef 여부 : ', memberRef);
   const listData = await Firestore.runTransaction(async (transaction) => {
     const memberDoc = await transaction.get(memberRef);
 
-    console.log('🌱 memberDoc 여부 : ', memberDoc.exists);
     if (memberDoc.exists === false) {
       throw new CustomServerError({ statusCode: 400, message: '존재하지 않는 사용자에용' });
     }
@@ -170,14 +162,11 @@ async function listWithPage({ uid, page = 1, size = 10 }: { uid: string; page?: 
 async function get({ uid, messageId }: { uid: string; messageId: string }) {
   const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
   const messageRef = Firestore.collection(MEMBER_COL).doc(uid).collection(MSG_COL).doc(messageId);
-  console.log('🌸 uid : ', uid);
-  console.log('🌸 memberRef 여부 : ', memberRef);
+
   const data = await Firestore.runTransaction(async (transaction) => {
     const memberDoc = await transaction.get(memberRef);
     const messageDoc = await transaction.get(messageRef);
 
-    console.log('🌸 memberDoc 여부 : ', memberDoc);
-    console.log('🌸 messageDoc 여부 : ', messageDoc);
     if (memberDoc.exists === false) {
       throw new CustomServerError({ statusCode: 400, message: '존재하지 않는 사용자에용' });
     }
