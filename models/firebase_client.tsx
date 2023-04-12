@@ -20,7 +20,7 @@ export default class FirebaseClient {
     const apps = getApps();
     //초기화가 안되어있는 경우 길이가 0
     if (apps.length === 0) {
-      console.info('초기화가 안되어있네용 : firebase client init start');
+      console.info('firebase client init start');
       initializeApp(FirebaseCredentials);
     }
     this.auth = getAuth();
