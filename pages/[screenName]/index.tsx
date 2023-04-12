@@ -148,7 +148,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
         page: number;
         size: number;
         content: InMessage[];
-      }>(`/api/messages.list?uid=${userInfo?.uid}&page=${page}&size=10`),
+      }>(`/api/messages.list?uid=${authUser?.uid}&page=${page}&size=10`),
     {
       keepPreviousData: true,
       refetchOnWindowFocus: false,
