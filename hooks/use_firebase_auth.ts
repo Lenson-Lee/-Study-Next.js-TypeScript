@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { GoogleAuthProvider, signInWithPopup, User } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, User, signInWithEmailAndPassword } from 'firebase/auth';
 import { InAuthUser } from '@/models/in_auth_user';
-import FirebaseClient from '@/models/firebase_client';
+import FirebaseClient from '@/models/firebase_client'; //Auth
 
 export default function useFirebaseAuth() {
   //Auth User 값을 반환
@@ -36,6 +36,27 @@ export default function useFirebaseAuth() {
     }
   }
 
+  //___________________________________________________
+
+  /** 체험용 계정 로그인 로직 */
+  async function signInTestAdmin(email: string, password: string) {
+    signInWithEmailAndPassword(FirebaseClient.getInstance().Auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const { user } = userCredential;
+
+        return user;
+        // ...
+      })
+      .catch((error) => {
+        if (email === '' || password === '') {
+          console.info('🤔 비밀번호가 비어있어요');
+        }
+        console.info('🤔 error code & message : ', error.code, error.message);
+      });
+  }
+
+  //___________________________________________________
   /** 모든걸 초기화 */
   const clear = () => {
     setAuthUser(null);
@@ -70,6 +91,7 @@ export default function useFirebaseAuth() {
     authUser,
     loading,
     signInWithGoogle,
+    signInTestAdmin,
     signOut,
   };
 }

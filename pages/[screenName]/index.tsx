@@ -163,6 +163,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   }
 
   const isOwner = authUser !== null && authUser.uid === userInfo.uid;
+
   return (
     <ServiceLayout title={`${userInfo.displayName}의 홈`} minH="100vh" backgroundColor="gray.50">
       <Box maxW="md" mx="auto" pt="6">
@@ -261,7 +262,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
               }}
             />
             <FormLabel htmlFor="anonymous" mb="0" fontSize="xx-small">
-              asdf
+              익명 여부
             </FormLabel>
           </FormControl>
         </Box>

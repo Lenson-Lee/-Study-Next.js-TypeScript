@@ -6,6 +6,7 @@ const GNB = function () {
   const { loading, authUser, signOut } = UseAuth();
 
   const { signInWithGoogle } = UseAuth();
+
   const loginBtn = (
     <Button
       onClick={signInWithGoogle}
