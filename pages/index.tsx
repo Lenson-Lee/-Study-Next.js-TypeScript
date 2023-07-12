@@ -1,16 +1,36 @@
+/* eslint-disable react/destructuring-assignment */
 import { useState } from 'react';
-import { NextPage } from 'next';
-import { Box, Flex, Heading, Center, Text, Button, Input } from '@chakra-ui/react';
+import { GetServerSideProps, NextPage } from 'next';
+import {
+  Box,
+  Flex,
+  Heading,
+  Center,
+  Text,
+  Button,
+  Input,
+  WrapItem,
+  Avatar,
+  Wrap,
+  Link,
+  Divider,
+} from '@chakra-ui/react';
+import axios from 'axios';
 import { ServiceLayout } from '@/components/service_layout';
 import { GoogleLoginButton } from '@/components/google_login_button';
 import { UseAuth } from '@/contexts/auth_user.context';
 
-const IndexPage: NextPage = function () {
+interface Props {
+  userList: any;
+  baseUrl: string;
+}
+const IndexPage: NextPage<Props> = function (props) {
   const { signInWithGoogle, authUser, signInTestAdmin } = UseAuth();
 
   const [pw, setPw] = useState<string>('');
+
   return (
-    <ServiceLayout title="Chat Any Thing" minH="100vh" backgroundColor="gray.50">
+    <ServiceLayout title="Chat Any Thing" minH="100vh" backgroundColor="gray.50" pb="20">
       <Box maxW="sm" mx="auto" pt="10">
         <img src="/main_logo.svg" alt="메인 로고" />
 
@@ -26,16 +46,6 @@ const IndexPage: NextPage = function () {
           <div>
             <Box mb="8">
               <form>
-                {/* <Input
-                  display="block"
-                  variant="flushed"
-                  width="full"
-                  size="sm"
-                  onChange={(e) => {
-                    setId(e.target.value);
-                  }}
-                  placeholder="체험용 아이디를 입력해 주세요"
-                /> */}
                 <Input
                   mt="2"
                   variant="flushed"
@@ -89,8 +99,43 @@ const IndexPage: NextPage = function () {
           </Box>
         )}
       </Center>
+      <Divider mt="10" mb="10" />
+      {/* ______________________________________________________________ */}
+      {props?.userList.length > 0 && (
+        <Box>
+          <Text fontSize="xl" mt="10" mb="10" textAlign="center">
+            둘러보기
+          </Text>
+
+          <Center>
+            <Wrap spacing="30px" justify="center">
+              {props?.userList.map((item: any) => (
+                <WrapItem>
+                  <Link href={`/${item.screen_name}`}>
+                    <Avatar size="lg" name={item.name} src={item.photoURL} />
+                    <Text align="center">{item.name}</Text>
+                  </Link>
+                </WrapItem>
+              ))}
+            </Wrap>
+          </Center>
+        </Box>
+      )}
     </ServiceLayout>
   );
+};
+export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) => {
+  console.log(query);
+
+  const protocol = process.env.PROTOCOL || 'http';
+  const host = process.env.HOST || 'localhost';
+  const port = process.env.PORT || '3000';
+  const baseUrl = `${protocol}://${host}:${port}`;
+
+  //any같은게 들어와서 뭘 받을지 특정한다.
+  const userList = await axios(`${baseUrl}/api/user.list`);
+
+  return { props: { userList: userList.data, baseUrl } };
 };
 
 export default IndexPage;

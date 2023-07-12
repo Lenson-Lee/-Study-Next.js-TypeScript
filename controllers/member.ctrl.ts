@@ -35,9 +35,19 @@ async function findByScreenName(req: NextApiRequest, res: NextApiResponse) {
   res.status(200).json(findResult);
 }
 
+async function findAllName(req: NextApiRequest, res: NextApiResponse) {
+  const findResult = await MemberModel.findAllName();
+
+  if (findResult === null) {
+    return res.status(404).end();
+  }
+
+  res.status(200).json(findResult);
+}
 const MemberCtrl = {
   add,
   findByScreenName,
+  findAllName,
 };
 
 export default MemberCtrl;

@@ -1,5 +1,5 @@
 {
-  "name": "blahx2",
+  "name": "chat-any-thing",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -13,6 +13,7 @@
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
     "axios": "^0.27.2",
+    "caniuse-lite": "^1.0.30001515",
     "chrome-aws-lambda": "6",
     "firebase": "^9.8.1",
     "firebase-admin": "^10.2.0",

@@ -48,9 +48,29 @@ async function findByScreenName(screenName: string): Promise<InAuthUser | null> 
   return data;
 }
 
+/** 둘러보기 기능을 위해 모든 유저 스크린 네임 get */
+async function findAllName() {
+  const memberRef = FirebaseAdmin.getInstance().Firestore.collection(SCR_NAME_COL).get();
+
+  const memberList: any = [];
+
+  /** doc.id : 문서명(여기서는 스크린네임), doc.data() : 문서 속 컬렉션 */
+  const memberDoc = (await memberRef).docs.map((doc) => {
+    memberList.push({
+      screen_name: doc.id,
+      name: doc.data().displayName,
+      photoURL: doc.data().photoURL,
+    });
+    return memberList;
+  });
+
+  return memberList;
+}
+
 const MemberModel = {
   add,
   findByScreenName,
+  findAllName,
 };
 
 export default MemberModel;
