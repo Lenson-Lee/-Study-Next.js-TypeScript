@@ -1,5 +1,4 @@
 import { firestore } from 'firebase-admin';
-import { doc, deleteDoc } from 'firebase/firestore';
 import FirebaseAdmin from '../firebase_admin';
 import CustomServerError from '@/controllers/error/custom_server_error';
 import { InMessage, InMessageServer } from './in_message';
@@ -215,7 +214,7 @@ async function postReply({ uid, messageId, reply }: { uid: string; messageId: st
 
 /** 메시지 삭제 */
 async function deleteMessage({ uid, messageId }: { uid: string; messageId: string }) {
-  const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
+  // const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
   const messageRef = Firestore.collection(MEMBER_COL).doc(uid).collection(MSG_COL);
 
   console.log('🐓  message.model 도착');

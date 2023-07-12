@@ -35,7 +35,7 @@ async function findByScreenName(req: NextApiRequest, res: NextApiResponse) {
   res.status(200).json(findResult);
 }
 
-async function findAllName(req: NextApiRequest, res: NextApiResponse) {
+async function findAllName(_req: NextApiRequest, res: NextApiResponse) {
   const findResult = await MemberModel.findAllName();
 
   if (findResult === null) {

@@ -55,7 +55,7 @@ async function findAllName() {
   const memberList: any = [];
 
   /** doc.id : 문서명(여기서는 스크린네임), doc.data() : 문서 속 컬렉션 */
-  const memberDoc = (await memberRef).docs.map((doc) => {
+  (await memberRef).docs.map((doc) => {
     memberList.push({
       screen_name: doc.id,
       name: doc.data().displayName,
