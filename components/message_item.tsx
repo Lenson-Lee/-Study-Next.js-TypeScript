@@ -79,6 +79,33 @@ const MessageItem = function ({ uid, screenName, displayName, photoURL, item, is
       });
     }
   }
+  async function deleteMessage() {
+    try {
+      const token = await FirebaseClient.getInstance().Auth.currentUser?.getIdToken();
+      if (token === undefined) {
+        toast({
+          title: '로그인한 사용자만 사용할 수 있는 메뉴입니다.',
+        });
+        return;
+      }
+      const resp = await fetch('/api/messages.delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', authorization: token },
+        body: JSON.stringify({
+          uid,
+          messageId: item.id,
+        }),
+      });
+      if (resp.status < 300) {
+        onSendComplete();
+      }
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: '로그인한 사용자만 사용할 수 있는 메뉴입니다.',
+      });
+    }
+  }
 
   const haveReply = item.reply !== undefined;
   const isDeny = item.deny !== undefined ? item.deny === true : false;
@@ -115,6 +142,14 @@ const MessageItem = function ({ uid, screenName, displayName, photoURL, item, is
                   }}
                 >
                   {isDeny ? '비공개 처리 해제' : '비공개 처리'}
+                </MenuItem>
+                <MenuItem
+                  onClick={(e: any) => {
+                    e.preventDefault();
+                    deleteMessage();
+                  }}
+                >
+                  메시지 삭제하기
                 </MenuItem>
                 <MenuItem
                   onClick={() => {
