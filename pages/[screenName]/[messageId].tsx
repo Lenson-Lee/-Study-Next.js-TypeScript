@@ -20,6 +20,7 @@ interface Props {
 
 const MessagePage: NextPage<Props> = function ({ userInfo, messageData: initMsgData, screenName, baseUrl }) {
   const [messageData, setMessageData] = useState<null | InMessage>(initMsgData);
+
   const { authUser } = UseAuth();
 
   async function fetchMessageInfo({ uid, messageId }: { uid: string; messageId: string }) {
@@ -44,6 +45,7 @@ const MessagePage: NextPage<Props> = function ({ userInfo, messageData: initMsgD
   const isOwner = authUser !== null && authUser.uid === userInfo.uid;
   const metaImgUrl = `${baseUrl}/open-graph-img?text=${encodeURIComponent(messageData.message)}`;
   const thumbnailImgUrl = `${baseUrl}/api/thumbnail?url=${encodeURIComponent(metaImgUrl)}`;
+
   return (
     <>
       <Head>
@@ -82,6 +84,7 @@ const MessagePage: NextPage<Props> = function ({ userInfo, messageData: initMsgD
               // setMessageListFetchTrigger((prev) => !prev);
               fetchMessageInfo({ uid: userInfo.uid, messageId: messageData.id });
             }}
+            onSendDelete={() => console.log('세부내용에서 삭제는 안돼요')}
           />
         </Box>
       </ServiceLayout>
