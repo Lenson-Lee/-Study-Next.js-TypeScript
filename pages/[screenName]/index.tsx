@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
   Box,
   Avatar,
@@ -85,6 +85,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
 
   const toast = useToast();
   const { authUser } = UseAuth();
+  const queryClient = useQueryClient();
 
   // 사용자들이 질문을 남긴 목록을 조회
   // user id를 알아야 하기 때문에 authUser가 null이 아닐때만 동작
@@ -157,7 +158,36 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
     },
   );
 
-  //
+  // Delete Mutation
+  /** useMutation(쿼리키, api호출함수, 쿼리옵션) */
+  async function deleteMessage(props: any) {
+    const { uid, messageId } = props;
+
+    const resp = await fetch('/api/messages.delete', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        // authorization: token
+      },
+      body: JSON.stringify({
+        uid,
+        messageId,
+      }),
+    });
+    if (resp.status < 300) {
+      toast({
+        title: '삭제되었습니다.',
+        status: 'success',
+        position: 'top-right',
+      });
+    }
+  }
+  const deleteMutation = useMutation((deleteData: { uid: string; messageId: string }) => deleteMessage(deleteData), {
+    onSuccess: () => {
+      queryClient.invalidateQueries('messageList');
+    },
+  });
+
   if (userInfo === null) {
     return <p>사용자를 찾을 수 없습니다.</p>;
   }
@@ -169,10 +199,11 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
       <Box maxW="md" mx="auto" pt="6">
         <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb="2" bg="white">
           <Flex p="6">
-            <Avatar size="lg" src={userInfo.photoURL ?? 'https://bit.ly/broken-link'} mr="2" />
+            <Avatar size="lg" src={userInfo.photoURL ?? 'https://bit.ly/broken-link'} mr="3" />
             <Flex direction="column" justify="center">
-              <Text fontSize="md">{userInfo.displayName}</Text>
-              <Text fontSize="xs">{userInfo.email}</Text>
+              <Text fontSize="lg">{userInfo.displayName}</Text>
+              {isOwner && <Text fontSize="xs">{userInfo.email}</Text>}
+              <Text fontSize="md">자기소개칸은 20자로 제한됩니다요옹.</Text>
             </Flex>
           </Flex>
         </Box>
@@ -280,6 +311,14 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
                 // setMessageListFetchTrigger((prev) => !prev);
                 fetchMessageInfo({ uid: userInfo.uid, messageId: msgData.id });
               }}
+              onSendDelete={() =>
+                deleteMutation.mutate({
+                  uid: userInfo.uid,
+                  messageId: msgData.id,
+                })
+              }
+              // deleteMessage({ uid: userInfo.uid, messageId: msgData.id })}
+              // deleteMessage.mutate()}
             />
           ))}
         </VStack>
@@ -303,6 +342,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) => {
   const { screenName } = query;
+
   if (screenName === undefined) {
     console.info('😡 라우터에 screenName이 없어요!');
     return {

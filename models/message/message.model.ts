@@ -163,12 +163,9 @@ async function get({ uid, messageId }: { uid: string; messageId: string }) {
   const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
   const messageRef = Firestore.collection(MEMBER_COL).doc(uid).collection(MSG_COL).doc(messageId);
 
-  console.log('🌊 message.model의 쿼리에용 : ', uid, messageId);
-  console.log('🌊 messageRef : ', messageRef);
   const data = await Firestore.runTransaction(async (transaction) => {
     const memberDoc = await transaction.get(memberRef);
     const messageDoc = await transaction.get(messageRef);
-    console.log('🌊 messageDoc : ', messageDoc);
 
     if (memberDoc.exists === false) {
       throw new CustomServerError({ statusCode: 400, message: 'get : 존재하지 않는 사용자에용' });
@@ -216,8 +213,6 @@ async function postReply({ uid, messageId, reply }: { uid: string; messageId: st
 async function deleteMessage({ uid, messageId }: { uid: string; messageId: string }) {
   // const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
   const messageRef = Firestore.collection(MEMBER_COL).doc(uid).collection(MSG_COL);
-
-  console.log('🐓  message.model 도착');
 
   /** 삭제 */
   messageRef.doc(messageId).delete();

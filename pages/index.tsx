@@ -9,9 +9,9 @@ import {
   Text,
   Button,
   Input,
-  WrapItem,
   Avatar,
   Wrap,
+  WrapItem,
   Link,
   Divider,
 } from '@chakra-ui/react';
@@ -110,7 +110,7 @@ const IndexPage: NextPage<Props> = function (props) {
           <Center>
             <Wrap spacing="30px" justify="center">
               {props?.userList.map((item: any) => (
-                <WrapItem>
+                <WrapItem key={item.name + item.photoURL}>
                   <Link href={`/${item.screen_name}`}>
                     <Avatar size="lg" name={item.name} src={item.photoURL} />
                     <Text align="center">{item.name}</Text>

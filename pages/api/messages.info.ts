@@ -6,7 +6,6 @@ import MessageCtrl from '@/controllers/message.ctrl';
 // members.add.ts 복북
 // POST만 할 예정
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log('👀 messages.info에서 MessageCtrl.get 해요');
   const { method } = req;
   const supportMethod = ['GET'];
   try {

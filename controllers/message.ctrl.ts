@@ -38,8 +38,6 @@ async function list(req: NextApiRequest, res: NextApiResponse) {
 async function get(req: NextApiRequest, res: NextApiResponse) {
   const { uid, messageId } = req.query;
 
-  console.log('👀 message.ctrl의 쿼리에용 : ', req.query);
-
   if (uid === undefined) {
     throw new BadReqError('uid 누락');
   }
@@ -124,8 +122,6 @@ async function deleteMessage(req: NextApiRequest, res: NextApiResponse) {
   if (messageId === undefined) {
     throw new BadReqError('messageId 누락');
   }
-
-  console.log('🐤 ctrl 도착');
   const result = await MessageModel.deleteMessage({ uid, messageId });
 
   return res.status(200).json(result);
