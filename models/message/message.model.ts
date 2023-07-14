@@ -55,7 +55,7 @@ async function post({
   });
 }
 
-/** 메시지 수정 */
+/** 메시지 공개여부 수정 */
 async function updateMessage({ uid, messageId, deny }: { uid: string; messageId: string; deny: boolean }) {
   const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
   const messageRef = Firestore.collection(MEMBER_COL).doc(uid).collection(MSG_COL).doc(messageId);

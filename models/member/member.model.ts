@@ -67,10 +67,56 @@ async function findAllName() {
   return memberList;
 }
 
+/** 유저 정보 수정하기 */
+async function update({
+  uid,
+  email,
+  updateName,
+  updateIntro,
+}: {
+  uid: string;
+  email: string;
+  updateName: string;
+  updateIntro: string;
+}): Promise<AddResult> {
+  try {
+    const updateResult = await FirebaseAdmin.getInstance().Firestore.runTransaction(async (transaction) => {
+      /** 일치하는 멤버 존재하는지 확인  */
+      const memberRef = FirebaseAdmin.getInstance().Firestore.collection(MEMBER_COL).doc(uid);
+      const memberDoc = await transaction.get(memberRef);
+
+      const screenName = (email as string).replace('@gmail.com', '');
+      const screenNameRef = FirebaseAdmin.getInstance().Firestore.collection(SCR_NAME_COL).doc(screenName);
+
+      const updateDate = {
+        uid,
+        displayName: updateName,
+        email,
+        intro: updateIntro,
+      };
+      await transaction.update(memberRef, updateDate);
+      await transaction.update(screenNameRef, updateDate);
+
+      if (memberDoc.exists === false) {
+        console.log('🥺 member_model - memberRef 없어요');
+        return { result: false, id: uid };
+      }
+      return true;
+    });
+    console.log('👀 정보 수정 결과 :', updateResult);
+    return { result: true, id: uid };
+  } catch (err) {
+    console.error(err);
+    /** server side쪽의 에러 */
+    return { result: false, message: '서버에러' };
+  }
+}
+
 const MemberModel = {
   add,
   findByScreenName,
   findAllName,
+  update,
 };
 
 export default MemberModel;

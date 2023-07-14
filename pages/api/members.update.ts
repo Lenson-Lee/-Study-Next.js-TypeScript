@@ -3,13 +3,15 @@ import MemberCtrl from '@/controllers/member.ctrl';
 import handleError from '@/controllers/error/handle_error';
 import checkSupportMethod from '@/controllers/error/check_support_method';
 
-// POST만 할 예정
+// 사용자 정보 (name, photoURL, 자기소개(null 가능)) 수정
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
+  console.log('🐓 members.update API에 넘어온 값 : ', req.body);
+
   const supportMethod = ['POST'];
   try {
     checkSupportMethod(supportMethod, method);
-    await MemberCtrl.add(req, res);
+    await MemberCtrl.update(req.body, res);
   } catch (err) {
     console.error(err);
     //에러 처리

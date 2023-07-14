@@ -26,15 +26,20 @@ function convertDateToString(dateString: string): string {
     seconds < 1
   ) {
     return '0초';
-  } else if (years === 0 && months === 0 && days === 0 && hours === 0 && minutes === 0 && seconds) {
+  }
+  if (years === 0 && months === 0 && days === 0 && hours === 0 && minutes === 0 && seconds) {
     return `${Math.floor(seconds)}초`;
-  } else if (years === 0 && months === 0 && days === 0 && hours === 0) {
+  }
+  if (years === 0 && months === 0 && days === 0 && hours === 0) {
     return `${minutes}분`;
-  } else if (years === 0 && months === 0 && days === 0) {
+  }
+  if (years === 0 && months === 0 && days === 0) {
     return `${hours}시간`;
-  } else if (years === 0 && months === 0) {
+  }
+  if (years === 0 && months === 0) {
     return `${days}일`;
-  } else if (years === 0) {
+  }
+  if (years === 0) {
     return `${months}개월`;
   }
   return `${years}년`;

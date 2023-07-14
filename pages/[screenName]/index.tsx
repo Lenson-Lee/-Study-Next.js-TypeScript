@@ -11,6 +11,7 @@ import {
   Switch,
   FormLabel,
   VStack,
+  Input,
 } from '@chakra-ui/react';
 import { GetServerSideProps, NextPage } from 'next';
 import { useState } from 'react';
@@ -21,6 +22,8 @@ import { InMessage } from '@/models/message/in_message';
 import { InAuthUser } from '@/models/in_auth_user';
 import { UseAuth } from '@/contexts/auth_user.context';
 import { ServiceLayout } from '@/components/service_layout';
+import Default from '@/components/Info/Default';
+import Editting from '@/components/Info/Editting';
 // import { TriangleDownIcon } from '@chakra-ui/icons';
 // const userInfo = {
 //   uid: 'test',
@@ -76,13 +79,17 @@ async function postMessage({
 }
 
 const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
-  const [message, setMessage] = useState('');
-  const [isAnonymous, setAnonymous] = useState(true);
+  const [message, setMessage] = useState<string>('');
+  const [isAnonymous, setAnonymous] = useState<boolean>(true);
   const [messageList, setMessageList] = useState<InMessage[]>([]);
-  const [messageListFetchTrigger, setMessageListFetchTrigger] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [messageListFetchTrigger, setMessageListFetchTrigger] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
+  /** 정보수정 On / Off */
+  const [updateInfo, setupdateInfo] = useState<boolean>(false);
+  const [updateName, setupdateName] = useState<string>('');
+  const [updateIntro, setupdateIntro] = useState<string>('');
   const toast = useToast();
   const { authUser } = UseAuth();
   const queryClient = useQueryClient();
@@ -188,6 +195,32 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
     },
   });
 
+  // 사용자 정보 변경
+  async function updateMember(props: any) {
+    try {
+      await fetch('/api/members.update', {
+        method: 'post',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          uid: props.uid,
+          displayName: props.displayName,
+          email: props.email,
+          updateName: props.updateName !== '' ? props.updateName : props.displayName,
+          updateIntro: props.updateIntro,
+        }),
+      });
+      return {
+        result: true,
+      };
+    } catch (err) {
+      console.error(err);
+      return {
+        result: false,
+        message: '정보 수정 실패',
+      };
+    }
+  }
+
   if (userInfo === null) {
     return <p>사용자를 찾을 수 없습니다.</p>;
   }
@@ -200,10 +233,138 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
         <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb="2" bg="white">
           <Flex p="6">
             <Avatar size="lg" src={userInfo.photoURL ?? 'https://bit.ly/broken-link'} mr="3" />
-            <Flex direction="column" justify="center">
-              <Text fontSize="lg">{userInfo.displayName}</Text>
-              {isOwner && <Text fontSize="xs">{userInfo.email}</Text>}
-              <Text fontSize="md">자기소개칸은 20자로 제한됩니다요옹.</Text>
+            <Flex direction="column" justify="center" width="full">
+              {/* Default UI _________________________________________*/}
+              {updateInfo === false && (
+                <Default
+                  isOwner={isOwner}
+                  displayName={userInfo.displayName}
+                  email={userInfo.email}
+                  intro={userInfo?.intro}
+                  // photoURL={userInfo.photoURL}
+                />
+              )}
+              {/* Editting UI _________________________________________ */}
+              {isOwner && updateInfo && (
+                // <Editting defaultName={userInfo.displayName} email={userInfo.email} updateName="" />
+                <Box>
+                  <Input
+                    bg="gray.100"
+                    border="none"
+                    placeholder={userInfo.displayName ? userInfo.displayName : '이름'}
+                    resize="none"
+                    minH="unset"
+                    overflow="hidden"
+                    fontSize="md"
+                    py="1"
+                    mr="2"
+                    maxRows={1}
+                    value={updateName}
+                    onChange={(e) => {
+                      if (e.currentTarget.value) {
+                        const textCount = e.currentTarget.value.length;
+                        if (textCount > 10) {
+                          toast({ title: '최대 10자까지 가능합니다.', position: 'top-right' });
+                          return;
+                        }
+                      }
+                      setupdateName(e.currentTarget.value);
+                    }}
+                    as={ResizeTextArea}
+                  />
+                  <Textarea
+                    bg="gray.100"
+                    border="none"
+                    placeholder="소개글을 입력해주세요"
+                    resize="none"
+                    minH="unset"
+                    overflow="hidden"
+                    fontSize="md"
+                    py="1"
+                    mr="2"
+                    maxRows={1}
+                    value={updateIntro}
+                    onChange={(e) => {
+                      if (e.currentTarget.value) {
+                        const textCount = e.currentTarget.value.length;
+                        if (textCount > 16) {
+                          toast({ title: '최대 글자수입니다.', position: 'top-right' });
+                          return;
+                        }
+                      }
+                      setupdateIntro(e.currentTarget.value);
+                    }}
+                    as={ResizeTextArea}
+                  />
+                </Box>
+              )}
+
+              {isOwner && updateInfo === false && (
+                // default
+                <Button
+                  onClick={() => {
+                    setupdateInfo(true);
+                  }}
+                  mt="3"
+                  fontSize="xs"
+                  color="blue.400"
+                >
+                  내 정보 수정
+                </Button>
+              )}
+              {isOwner && updateInfo && (
+                // 정보 수정중
+                <Flex width="full" gap="2">
+                  <Button
+                    onClick={async () => {
+                      const postData: {
+                        uid: string;
+                        displayName: string;
+                        email: string;
+                        updateName: string;
+                        updateIntro: string;
+                      } = {
+                        uid: userInfo.uid,
+                        displayName: userInfo.displayName ? userInfo.displayName : 'sampleName',
+                        email: userInfo.email ? userInfo.email : 'sample@mail.com',
+                        updateName,
+                        updateIntro,
+                      };
+                      const infoResp = await updateMember(postData);
+                      if (infoResp.result === false) {
+                        toast({ title: '정보 수정 실패', position: 'top-right' });
+                      }
+                      setMessage('');
+                      setPage(1);
+                      //페이지 변경 후 로딩되어야해서 프레임 차이를 준다.
+                      setTimeout(() => {
+                        setMessageListFetchTrigger((prev) => !prev);
+                      }, 50);
+
+                      setupdateInfo(!updateInfo);
+                    }}
+                    width="full"
+                    mt="3"
+                    fontSize="xs"
+                    color="blue.400"
+                  >
+                    수정하기
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setupdateInfo(!updateInfo);
+                      setupdateName('');
+                      setupdateIntro('');
+                    }}
+                    width="full"
+                    mt="3"
+                    fontSize="xs"
+                    color="pink.400"
+                  >
+                    취소하기
+                  </Button>
+                </Flex>
+              )}
             </Flex>
           </Flex>
         </Box>
