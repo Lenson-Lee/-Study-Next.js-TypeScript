@@ -5,9 +5,6 @@ import BadReqError from './error/bad_request_error';
 /** 계정 추가 */
 async function add(req: NextApiRequest, res: NextApiResponse) {
   const { uid, email, displayName, photoURL } = req.body;
-  const introduce = '';
-  const updateName = '';
-  const updateIntro = ''; //소개글은 가입 이후에 직접 수정
 
   if (uid === undefined || uid === null) {
     throw new BadReqError('uid -> 누락되었어요.');
@@ -16,7 +13,7 @@ async function add(req: NextApiRequest, res: NextApiResponse) {
     throw new BadReqError('email -> 누락되었어요.');
   }
 
-  const addResult = await MemberModel.add({ uid, email, displayName, photoURL, introduce, updateName, updateIntro });
+  const addResult = await MemberModel.add({ uid, email, displayName, photoURL });
   if (addResult.result === true) {
     return res.status(200).json(addResult);
   }
@@ -54,32 +51,22 @@ async function findAllName(_req: NextApiRequest, res: NextApiResponse) {
 
 /** 유저 정보 수정하기 */
 async function update(req: any, res: NextApiResponse) {
-  const {
-    uid,
-    email,
-    updateName,
-    updateIntro,
-  }: {
-    uid: string;
-    email: string;
-    updateName: string;
-    updateIntro: string;
-  } = req;
+  const { uid, email, displayName, introduce } = req;
 
   if (uid === undefined || uid === null) {
     throw new BadReqError('uid -> 누락되었어요.');
   }
-  if (updateName === undefined || updateName === null) {
-    throw new BadReqError('updateName -> 누락되었어요.');
+  if (displayName === undefined || displayName === null) {
+    throw new BadReqError('displayName -> 누락되었어요.');
   }
-  if (updateIntro === undefined || updateIntro === null) {
-    throw new BadReqError('updateIntro -> 누락되었어요.');
+  if (introduce === undefined || introduce === null) {
+    throw new BadReqError('introduce -> 누락되었어요.');
   }
   if (email === undefined || email === null) {
     throw new BadReqError('email -> 누락되었어요.');
   }
 
-  const updateResult = await MemberModel.update({ uid, email, updateName, updateIntro });
+  const updateResult = await MemberModel.update({ uid, email, displayName, introduce });
   if (updateResult.result === true) {
     return res.status(200).json(updateResult);
   }

@@ -3,7 +3,6 @@ import {
   Box,
   Avatar,
   Flex,
-  Text,
   Textarea,
   Button,
   useToast,
@@ -19,11 +18,10 @@ import ResizeTextArea from 'react-textarea-autosize';
 import axios, { AxiosResponse } from 'axios';
 import MessageItem from '@/components/message_item';
 import { InMessage } from '@/models/message/in_message';
-import { InAuthUser } from '@/models/in_auth_user';
+import { ScreenNameUser } from '@/models/in_auth_user';
 import { UseAuth } from '@/contexts/auth_user.context';
 import { ServiceLayout } from '@/components/service_layout';
 import Default from '@/components/Info/Default';
-import Editting from '@/components/Info/Editting';
 // import { TriangleDownIcon } from '@chakra-ui/icons';
 // const userInfo = {
 //   uid: 'test',
@@ -33,7 +31,7 @@ import Editting from '@/components/Info/Editting';
 // };
 
 interface Props {
-  userInfo: InAuthUser | null;
+  userInfo: ScreenNameUser | null;
   screenName: string;
 }
 
@@ -82,15 +80,17 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const [message, setMessage] = useState<string>('');
   const [isAnonymous, setAnonymous] = useState<boolean>(true);
   const [messageList, setMessageList] = useState<InMessage[]>([]);
+  const [userInfoFetchTrigger, setUserInfoFetchTrigger] = useState<boolean>(false);
   const [messageListFetchTrigger, setMessageListFetchTrigger] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-
+  console.log(setUserInfoFetchTrigger);
   /** 정보수정 On / Off */
   const [updateInfo, setupdateInfo] = useState<boolean>(false);
   const [updateName, setupdateName] = useState<string>('');
   const [updateIntro, setupdateIntro] = useState<string>('');
   const toast = useToast();
+
   const { authUser } = UseAuth();
   const queryClient = useQueryClient();
 
@@ -116,6 +116,30 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   //   }
   // }
 
+  // 사용자 정보 변경
+  async function updateMember(props: any) {
+    try {
+      await fetch('/api/members.update', {
+        method: 'post',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          uid: props.uid,
+          email: props.email,
+          displayName: props.displayName,
+          introduce: props.introduce,
+        }),
+      });
+      return {
+        result: true,
+      };
+    } catch (err) {
+      console.error(err);
+      return {
+        result: false,
+        message: '정보 수정 실패',
+      };
+    }
+  }
   async function fetchMessageInfo({ uid, messageId }: { uid: string; messageId: string }) {
     try {
       const resp = await fetch(`/api/messages.info?uid=${uid}&messageId=${messageId}`);
@@ -138,7 +162,34 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
     }
   }
 
-  // React Query 사용
+  // 🤍사용자 정보 로드 : React Query 사용 ____________________________________________________
+  const userInfoQueryKey = ['userInfo', userInfo?.uid, userInfoFetchTrigger];
+  useQuery(
+    userInfoQueryKey,
+    async () =>
+      // eslint-disable-next-line no-return-await
+      await axios.get<{
+        totalElements: number;
+        totalPages: number;
+        page: number;
+        size: number;
+        content: InMessage[];
+      }>(`/api/messages.list?uid=${userInfo?.uid}&page=${page}&size=10`),
+    {
+      keepPreviousData: true,
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        setTotalPages(data.data.totalPages);
+        if (page === 1) {
+          setMessageList([...data.data.content]);
+          return;
+        }
+        setMessageList((prev) => [...prev, ...data.data.content]);
+      },
+    },
+  );
+
+  // 🤍메시지 리스트 로드 : React Query 사용 ____________________________________________________
   const messageListQueryKey = ['messageList', userInfo?.uid, page, messageListFetchTrigger];
   useQuery(
     messageListQueryKey,
@@ -165,7 +216,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
     },
   );
 
-  // Delete Mutation
+  // 메시지 리스트 삭제 : Delete Mutation
   /** useMutation(쿼리키, api호출함수, 쿼리옵션) */
   async function deleteMessage(props: any) {
     const { uid, messageId } = props;
@@ -195,32 +246,6 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
     },
   });
 
-  // 사용자 정보 변경
-  async function updateMember(props: any) {
-    try {
-      await fetch('/api/members.update', {
-        method: 'post',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          uid: props.uid,
-          displayName: props.displayName,
-          email: props.email,
-          updateName: props.updateName !== '' ? props.updateName : props.displayName,
-          updateIntro: props.updateIntro,
-        }),
-      });
-      return {
-        result: true,
-      };
-    } catch (err) {
-      console.error(err);
-      return {
-        result: false,
-        message: '정보 수정 실패',
-      };
-    }
-  }
-
   if (userInfo === null) {
     return <p>사용자를 찾을 수 없습니다.</p>;
   }
@@ -240,7 +265,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
                   isOwner={isOwner}
                   displayName={userInfo.displayName}
                   email={userInfo.email}
-                  intro={userInfo?.intro}
+                  intro={userInfo.introduce}
                   // photoURL={userInfo.photoURL}
                 />
               )}
@@ -321,14 +346,12 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
                         uid: string;
                         displayName: string;
                         email: string;
-                        updateName: string;
-                        updateIntro: string;
+                        introduce: string;
                       } = {
                         uid: userInfo.uid,
-                        displayName: userInfo.displayName ? userInfo.displayName : 'sampleName',
+                        displayName: updateName || userInfo.displayName || 'sampleName',
                         email: userInfo.email ? userInfo.email : 'sample@mail.com',
-                        updateName,
-                        updateIntro,
+                        introduce: updateIntro,
                       };
                       const infoResp = await updateMember(postData);
                       if (infoResp.result === false) {
@@ -525,7 +548,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
     const port = process.env.PORT || '3000';
     const baseUrl = `${protocol}://${host}:${port}`;
     //any같은게 들어와서 뭘 받을지 특정한다.
-    const userInfoResp: AxiosResponse<InAuthUser> = await axios(`${baseUrl}/api/user.info/${screenName}`);
+    const userInfoResp: AxiosResponse<ScreenNameUser> = await axios(`${baseUrl}/api/user.info/${screenName}`);
 
     return {
       props: {

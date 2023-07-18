@@ -6,8 +6,6 @@ import checkSupportMethod from '@/controllers/error/check_support_method';
 // 사용자 정보 (name, photoURL, 자기소개(null 가능)) 수정
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
-  console.log('🐓 members.update API에 넘어온 값 : ', req.body);
-
   const supportMethod = ['POST'];
   try {
     checkSupportMethod(supportMethod, method);

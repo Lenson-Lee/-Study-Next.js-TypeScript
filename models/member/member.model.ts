@@ -1,5 +1,5 @@
 import FirebaseAdmin from '../firebase_admin';
-import { InAuthUser } from '../in_auth_user';
+import { InAuthUser, ScreenNameUser } from '../in_auth_user';
 
 const MEMBER_COL = 'members';
 const SCR_NAME_COL = 'screen_names';
@@ -38,13 +38,17 @@ async function add({ uid, displayName, email, photoURL }: InAuthUser): Promise<A
   }
 }
 
+/** 사용자 페이지를 위한 유저데이터 + intro(소개글) get */
 async function findByScreenName(screenName: string): Promise<InAuthUser | null> {
   const memberRef = FirebaseAdmin.getInstance().Firestore.collection(SCR_NAME_COL).doc(screenName);
   const memberDoc = await memberRef.get();
+
   if (memberDoc.exists === false) {
     return null;
   }
-  const data = memberDoc.data() as InAuthUser; //이미 타입캐스트가 되어있음
+  // InAuthUser 에는 구글 로그인 정보에도 사용하는 형이라 intro를 넣을 수 없어서 새로운 인터페이스 제작
+  const data = memberDoc.data() as ScreenNameUser;
+
   return data;
 }
 
@@ -71,13 +75,13 @@ async function findAllName() {
 async function update({
   uid,
   email,
-  updateName,
-  updateIntro,
+  displayName,
+  introduce,
 }: {
   uid: string;
   email: string;
-  updateName: string;
-  updateIntro: string;
+  displayName: string;
+  introduce: string;
 }): Promise<AddResult> {
   try {
     const updateResult = await FirebaseAdmin.getInstance().Firestore.runTransaction(async (transaction) => {
@@ -90,9 +94,9 @@ async function update({
 
       const updateDate = {
         uid,
-        displayName: updateName,
-        email,
-        intro: updateIntro,
+        displayName,
+        // email,
+        introduce,
       };
       await transaction.update(memberRef, updateDate);
       await transaction.update(screenNameRef, updateDate);

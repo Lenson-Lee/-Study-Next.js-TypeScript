@@ -14,7 +14,7 @@ export default function useFirebaseAuth() {
       const signInResult = await signInWithPopup(FirebaseClient.getInstance().Auth, provider);
 
       if (signInResult.user) {
-        console.info(signInResult.user);
+        console.info('👀 signInWith Google : ', signInResult.user);
         const resp = await fetch('/api/members.add', {
           method: 'post',
           headers: {

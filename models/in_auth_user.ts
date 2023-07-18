@@ -3,9 +3,12 @@ export interface InAuthUser {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
-  intro: string | null; //소개글
+}
 
-  // 수정하기 위한 데이터
-  updateName: string | null;
-  updateIntro: string | null;
+export interface ScreenNameUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  introduce: string | null; //소개글 -> 파이어베이스 제공 정보가 아님
 }
