@@ -81,7 +81,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const [message, setMessage] = useState<string>('');
   const [isAnonymous, setAnonymous] = useState<boolean>(true);
   const [messageList, setMessageList] = useState<InMessage[]>([]);
-  const [userInfoFetchTrigger, setUserInfoFetchTrigger] = useState<boolean>(false);
+  // const [userInfoFetchTrigger, setUserInfoFetchTrigger] = useState<boolean>(false);
   const [messageListFetchTrigger, setMessageListFetchTrigger] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -164,7 +164,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   }
 
   // 🤍사용자 정보 로드 : React Query 사용 ____________________________________________________
-  const userInfoQueryKey = ['userInfo', userInfo?.uid, userInfoFetchTrigger];
+  const userInfoQueryKey = ['userInfo', userInfo?.uid];
   useQuery(
     userInfoQueryKey,
     async () =>
