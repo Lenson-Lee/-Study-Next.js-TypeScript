@@ -70,7 +70,7 @@ async function postReply(req: NextApiRequest, res: NextApiResponse) {
 async function updateMessage(req: NextApiRequest, res: NextApiResponse) {
   const token = req.headers.authorization;
   if (token === undefined) {
-    throw new CustomServerError({ statusCode: 401, message: '권한이 없습니다.' });
+    throw new CustomServerError({ statusCode: 401, message: '토큰이 없습니다.' });
   }
   let tokenUid: null | string = null;
   try {
@@ -100,11 +100,12 @@ async function updateMessage(req: NextApiRequest, res: NextApiResponse) {
 /** 삭제는 아무나 하면 안되서 토큰값 비교 */
 async function deleteMessage(req: NextApiRequest, res: NextApiResponse) {
   const token = req.headers.authorization;
+  const { uid, messageId } = req.body;
+  let tokenUid: null | string = null;
 
   if (token === undefined) {
-    throw new CustomServerError({ statusCode: 401, message: '권한이 없습니다.' });
+    throw new CustomServerError({ statusCode: 401, message: '토큰이 없습니다.' });
   }
-  let tokenUid: null | string = null;
   try {
     const decode = FirebaseAdmin.getInstance().Auth.verifyIdToken(token);
     tokenUid = (await decode).uid;
@@ -112,12 +113,12 @@ async function deleteMessage(req: NextApiRequest, res: NextApiResponse) {
     throw new BadReqError('token에 문제가 있어용');
   }
 
-  const { uid, messageId } = req.body;
   if (uid === undefined) {
     throw new BadReqError('uid 누락');
   }
+
   if (uid !== tokenUid) {
-    throw new CustomServerError({ statusCode: 401, message: '수정 권한이 없습니다.' });
+    throw new CustomServerError({ statusCode: 401, message: '삭제 권한이 없습니다.' });
   }
   if (messageId === undefined) {
     throw new BadReqError('messageId 누락');

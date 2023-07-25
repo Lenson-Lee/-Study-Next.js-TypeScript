@@ -187,6 +187,7 @@ async function get({ uid, messageId }: { uid: string; messageId: string }) {
   return data;
 }
 
+/** 답글 달기 */
 async function postReply({ uid, messageId, reply }: { uid: string; messageId: string; reply: string }) {
   const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
   const messageRef = Firestore.collection(MEMBER_COL).doc(uid).collection(MSG_COL).doc(messageId);
@@ -211,7 +212,6 @@ async function postReply({ uid, messageId, reply }: { uid: string; messageId: st
 
 /** 메시지 삭제 */
 async function deleteMessage({ uid, messageId }: { uid: string; messageId: string }) {
-  // const memberRef = Firestore.collection(MEMBER_COL).doc(uid);
   const messageRef = Firestore.collection(MEMBER_COL).doc(uid).collection(MSG_COL);
 
   /** 삭제 */
@@ -221,26 +221,24 @@ async function deleteMessage({ uid, messageId }: { uid: string; messageId: strin
   //   const memberDoc = await transaction.get(memberRef);
   //   const messageDoc = await transaction.get(messageRef);
 
-  //   // if (memberDoc.exists === false) {
-  //   //   throw new CustomServerError({ statusCode: 400, message: '존재하지 않는 사용자에용' });
-  //   // }
-  //   // if (messageDoc.exists === false) {
-  //   //   throw new CustomServerError({ statusCode: 400, message: '존재하지 않는 문서에용' });
-  //   // }
+  //   if (memberDoc.exists === false) {
+  //     throw new CustomServerError({ statusCode: 400, message: '존재하지 않는 사용자에용' });
+  //   }
+  //   if (messageDoc.exists === false) {
+  //     throw new CustomServerError({ statusCode: 400, message: '존재하지 않는 문서에용' });
+  //   }
 
-  //   // console.log('🥚🍳🥞 message.model 도착', messageDoc);
+  //   트랜잭션 실행
+  //   await transaction.update(messageRef, { deny });
+  //   await deleteDoc(doc(db, "cities", "DC"));
 
-  //   //트랜잭션 실행
-  //   // await transaction.update(messageRef, { deny });
-  //   // await deleteDoc(doc(db, "cities", "DC"));
-
-  //   // const messageData = messageDoc.data() as InMessageServer;
-  //   // return {
-  //   //   ...messageData,
-  //   //   id: messageId,
-  //   //   createAt: messageData.createAt.toDate().toISOString(),
-  //   //   replyAt: messageData.replyAt ? messageData.replyAt.toDate().toISOString() : undefined,
-  //   // };
+  //   const messageData = messageDoc.data() as InMessageServer;
+  //   return {
+  //     ...messageData,
+  //     id: messageId,
+  //     createAt: messageData.createAt.toDate().toISOString(),
+  //     replyAt: messageData.replyAt ? messageData.replyAt.toDate().toISOString() : undefined,
+  //   };
   // });
 
   // return result;

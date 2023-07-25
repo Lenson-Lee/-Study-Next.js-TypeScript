@@ -95,6 +95,7 @@ const MessageItem = function ({
   async function deleteMessage() {
     try {
       const token = await FirebaseClient.getInstance().Auth.currentUser?.getIdToken();
+
       if (token === undefined) {
         toast({
           title: '로그인한 사용자만 사용할 수 있는 메뉴입니다.',
@@ -102,23 +103,8 @@ const MessageItem = function ({
         });
         return;
       }
-
+      /** 기존의 작업을 useMutation 하기 위해 index에서 수행 */
       onSendDelete();
-      // const resp = await fetch('/api/messages.delete', {
-      //   method: 'DELETE',
-      //   headers: { 'Content-Type': 'application/json', authorization: token },
-      //   body: JSON.stringify({
-      //     uid,
-      //     messageId: item.id,
-      //   }),
-      // });
-      // if (resp.status < 300) {
-      //   toast({
-      //     title: '삭제되었습니다.',
-      //     status: 'success',
-      //     position: 'top-right',
-      //   });
-      // }
     } catch (err) {
       console.error(err);
       toast({

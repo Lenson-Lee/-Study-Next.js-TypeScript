@@ -16,6 +16,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import { useState } from 'react';
 import ResizeTextArea from 'react-textarea-autosize';
 import axios, { AxiosResponse } from 'axios';
+import FirebaseClient from '@/models/firebase_client';
 import MessageItem from '@/components/message_item';
 import { InMessage } from '@/models/message/in_message';
 import { ScreenNameUser } from '@/models/in_auth_user';
@@ -84,7 +85,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const [messageListFetchTrigger, setMessageListFetchTrigger] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  console.log(setUserInfoFetchTrigger);
+
   /** 정보수정 On / Off */
   const [updateInfo, setupdateInfo] = useState<boolean>(false);
   const [updateName, setupdateName] = useState<string>('');
@@ -219,13 +220,13 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   // 메시지 리스트 삭제 : Delete Mutation
   /** useMutation(쿼리키, api호출함수, 쿼리옵션) */
   async function deleteMessage(props: any) {
+    const token = (await FirebaseClient.getInstance().Auth.currentUser?.getIdToken()) || '없어요';
     const { uid, messageId } = props;
-
     const resp = await fetch('/api/messages.delete', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        // authorization: token
+        authorization: token,
       },
       body: JSON.stringify({
         uid,
@@ -495,12 +496,12 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
                 // setMessageListFetchTrigger((prev) => !prev);
                 fetchMessageInfo({ uid: userInfo.uid, messageId: msgData.id });
               }}
-              onSendDelete={() =>
+              onSendDelete={async () => {
                 deleteMutation.mutate({
                   uid: userInfo.uid,
                   messageId: msgData.id,
-                })
-              }
+                });
+              }}
               // deleteMessage({ uid: userInfo.uid, messageId: msgData.id })}
               // deleteMessage.mutate()}
             />
