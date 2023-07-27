@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { QueryClient, useMutation, useQuery, useQueryClient } from 'react-query'; // pages/posts.jsx
 import {
   Box,
   Avatar,
@@ -32,7 +32,8 @@ import Default from '@/components/Info/Default';
 // };
 
 interface Props {
-  userInfo: ScreenNameUser | null;
+  userInfo: any;
+  // userInfo: ScreenNameUser | null;
   screenName: string;
 }
 
@@ -77,11 +78,21 @@ async function postMessage({
   }
 }
 
+/** 유저 정보 GET (Hydration으로 SSR과 연결) */
+const getData = async (props: any) => {
+  const { data } = await axios(`${props.baseUrl}/api/user.info/${props.screenName}`);
+
+  return {
+    userInfo: data,
+    screenName: props.screenName,
+  };
+};
+
 const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const [message, setMessage] = useState<string>('');
   const [isAnonymous, setAnonymous] = useState<boolean>(true);
   const [messageList, setMessageList] = useState<InMessage[]>([]);
-  // const [userInfoFetchTrigger, setUserInfoFetchTrigger] = useState<boolean>(false);
+  const [userInfoFetchTrigger, setUserInfoFetchTrigger] = useState<boolean>(false);
   const [messageListFetchTrigger, setMessageListFetchTrigger] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -91,6 +102,10 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const [updateName, setupdateName] = useState<string>('');
   const [updateIntro, setupdateIntro] = useState<string>('');
   const toast = useToast();
+
+  /** 실시간 유저 정보 (react-query)*/
+  const [userDisplayName, setUserDisplayName] = useState<string>('');
+  const [userIntroduce, setUserIntroduce] = useState<string>('');
 
   const { authUser } = UseAuth();
   const queryClient = useQueryClient();
@@ -117,30 +132,6 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   //   }
   // }
 
-  // 사용자 정보 변경
-  async function updateMember(props: any) {
-    try {
-      await fetch('/api/members.update', {
-        method: 'post',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          uid: props.uid,
-          email: props.email,
-          displayName: props.displayName,
-          introduce: props.introduce,
-        }),
-      });
-      return {
-        result: true,
-      };
-    } catch (err) {
-      console.error(err);
-      return {
-        result: false,
-        message: '정보 수정 실패',
-      };
-    }
-  }
   async function fetchMessageInfo({ uid, messageId }: { uid: string; messageId: string }) {
     try {
       const resp = await fetch(`/api/messages.info?uid=${uid}&messageId=${messageId}`);
@@ -162,33 +153,6 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
       console.error(err);
     }
   }
-
-  // 🤍사용자 정보 로드 : React Query 사용 ____________________________________________________
-  const userInfoQueryKey = ['userInfo', userInfo?.uid];
-  useQuery(
-    userInfoQueryKey,
-    async () =>
-      // eslint-disable-next-line no-return-await
-      await axios.get<{
-        totalElements: number;
-        totalPages: number;
-        page: number;
-        size: number;
-        content: InMessage[];
-      }>(`/api/messages.list?uid=${userInfo?.uid}&page=${page}&size=10`),
-    {
-      keepPreviousData: true,
-      refetchOnWindowFocus: false,
-      onSuccess: (data) => {
-        setTotalPages(data.data.totalPages);
-        if (page === 1) {
-          setMessageList([...data.data.content]);
-          return;
-        }
-        setMessageList((prev) => [...prev, ...data.data.content]);
-      },
-    },
-  );
 
   // 🤍메시지 리스트 로드 : React Query 사용 ____________________________________________________
   const messageListQueryKey = ['messageList', userInfo?.uid, page, messageListFetchTrigger];
@@ -213,6 +177,59 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
           return;
         }
         setMessageList((prev) => [...prev, ...data.data.content]);
+      },
+    },
+  );
+
+  // 🤍사용자 정보 로드 : React Query 사용 ____________________________________________________
+  const userInfoQueryKey = ['userInfo', userInfo?.uid, userInfoFetchTrigger];
+  useQuery(
+    userInfoQueryKey,
+    async () =>
+      // eslint-disable-next-line no-return-await
+      await axios.get(`/api/user.info/${screenName}`),
+    {
+      keepPreviousData: true,
+      refetchOnWindowFocus: false,
+      onSuccess: (data: string | any) => {
+        setUserDisplayName(data.data.displayName);
+        setUserIntroduce(data.data.introduce);
+      },
+    },
+  );
+
+  // 사용자 정보 변경
+  async function updateMember(props: any) {
+    const { uid, email, displayName, introduce } = props;
+    try {
+      await fetch('/api/members.update', {
+        method: 'post',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          uid,
+          email,
+          displayName,
+          introduce,
+        }),
+      });
+    } catch (err) {
+      console.error(err);
+      toast({ title: '정보 수정 실패', position: 'top-right' });
+      return {
+        result: false,
+        message: '정보 수정 실패',
+      };
+    }
+  }
+  const updateMemMutate = useMutation(
+    (updateData: { uid: string; email: string; displayName: string; introduce: string }) => updateMember(updateData),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('userInfo');
+      },
+      onError: (err) => {
+        console.log(err);
+        console.log('🥺 왜 정보가 업데이트 안돼요?');
       },
     },
   );
@@ -254,7 +271,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const isOwner = authUser !== null && authUser.uid === userInfo.uid;
 
   return (
-    <ServiceLayout title={`${userInfo.displayName}의 홈`} minH="100vh" backgroundColor="gray.50">
+    <ServiceLayout title={`${userDisplayName}의 홈`} minH="100vh" backgroundColor="gray.50">
       <Box maxW="md" mx="auto" pt="6">
         <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb="2" bg="white">
           <Flex p="6">
@@ -264,9 +281,9 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
               {updateInfo === false && (
                 <Default
                   isOwner={isOwner}
-                  displayName={userInfo.displayName}
+                  displayName={userDisplayName}
                   email={userInfo.email}
-                  intro={userInfo.introduce}
+                  intro={userIntroduce}
                   // photoURL={userInfo.photoURL}
                 />
               )}
@@ -343,28 +360,17 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
                 <Flex width="full" gap="2">
                   <Button
                     onClick={async () => {
-                      const postData: {
-                        uid: string;
-                        displayName: string;
-                        email: string;
-                        introduce: string;
-                      } = {
+                      updateMemMutate.mutate({
                         uid: userInfo.uid,
                         displayName: updateName || userInfo.displayName || 'sampleName',
                         email: userInfo.email ? userInfo.email : 'sample@mail.com',
                         introduce: updateIntro,
-                      };
-                      const infoResp = await updateMember(postData);
-                      if (infoResp.result === false) {
-                        toast({ title: '정보 수정 실패', position: 'top-right' });
-                      }
+                      });
+                      // const infoResp = await updateMember(postData);
                       setMessage('');
                       setPage(1);
                       //페이지 변경 후 로딩되어야해서 프레임 차이를 준다.
-                      setTimeout(() => {
-                        setMessageListFetchTrigger((prev) => !prev);
-                      }, 50);
-
+                      setUserInfoFetchTrigger((prev) => !prev);
                       setupdateInfo(!updateInfo);
                     }}
                     width="full"
@@ -527,6 +533,12 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) => {
   const { screenName } = query;
+  const queryClient = new QueryClient(); //Query 사용으로 실시간으로 userInfo 받아오기 -> 수정시 바로 적용
+
+  const protocol = process.env.PROTOCOL || 'http';
+  const host = process.env.HOST || 'localhost';
+  const port = process.env.PORT || '3000';
+  const baseUrl = `${protocol}://${host}:${port}`;
 
   if (screenName === undefined) {
     console.info('😡 라우터에 screenName이 없어요!');
@@ -542,15 +554,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
   // 서버사이드이기때문에 '/'만으로는 위치를 몰라 baseURL 생성
 
   const screenNameToStr = Array.isArray(screenName) ? screenName[0] : screenName;
+  const userInfoResp: AxiosResponse<ScreenNameUser> = await axios(`${baseUrl}/api/user.info/${screenName}`);
 
   try {
-    const protocol = process.env.PROTOCOL || 'http';
-    const host = process.env.HOST || 'localhost';
-    const port = process.env.PORT || '3000';
-    const baseUrl = `${protocol}://${host}:${port}`;
-    //any같은게 들어와서 뭘 받을지 특정한다.
-    const userInfoResp: AxiosResponse<ScreenNameUser> = await axios(`${baseUrl}/api/user.info/${screenName}`);
-
+    await queryClient.prefetchQuery(['userInfo'], () => getData({ baseUrl, screenName }));
     return {
       props: {
         userInfo: userInfoResp.data ?? null,

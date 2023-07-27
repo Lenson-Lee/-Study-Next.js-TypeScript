@@ -110,7 +110,7 @@ async function update({
     console.log('👀 정보 수정 결과 :', updateResult);
     return { result: true, id: uid };
   } catch (err) {
-    console.error(err);
+    console.error('👀 정보 수정 에러 : ', err);
     /** server side쪽의 에러 */
     return { result: false, message: '서버에러' };
   }

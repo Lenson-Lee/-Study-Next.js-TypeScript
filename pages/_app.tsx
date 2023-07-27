@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { QueryClientProvider, QueryClient } from 'react-query';
+import { Hydrate, QueryClientProvider, QueryClient } from 'react-query';
 import '../styles/globals.css';
 import type { AppProps /*, AppContext */ } from 'next/app';
 import { ChakraProvider } from '@chakra-ui/react';
@@ -13,11 +13,13 @@ const MyApp = function ({ Component, pageProps }: AppProps) {
   /* eslint-disable react/jsx-props-no-spreading */
   return (
     <QueryClientProvider client={queryClientRef.current}>
-      <ChakraProvider>
-        <AuthUserProvider>
-          <Component {...pageProps} />
-        </AuthUserProvider>
-      </ChakraProvider>
+      <Hydrate state={pageProps.dehydratedProps}>
+        <ChakraProvider>
+          <AuthUserProvider>
+            <Component {...pageProps} />
+          </AuthUserProvider>
+        </ChakraProvider>
+      </Hydrate>
     </QueryClientProvider>
   );
 };
