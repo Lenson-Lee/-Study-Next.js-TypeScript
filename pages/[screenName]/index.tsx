@@ -11,11 +11,13 @@ import {
   FormLabel,
   VStack,
   Input,
+  AvatarBadge,
 } from '@chakra-ui/react';
 import { GetServerSideProps, NextPage } from 'next';
 import { useState } from 'react';
 import ResizeTextArea from 'react-textarea-autosize';
 import axios, { AxiosResponse } from 'axios';
+import { Icon, SmallAddIcon } from '@chakra-ui/icons';
 import FirebaseClient from '@/models/firebase_client';
 import MessageItem from '@/components/message_item';
 import { InMessage } from '@/models/message/in_message';
@@ -275,7 +277,36 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
       <Box maxW="md" mx="auto" pt="6">
         <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb="2" bg="white">
           <Flex p="6">
-            <Avatar size="lg" src={userInfo.photoURL ?? 'https://bit.ly/broken-link'} mr="3" />
+            {/* Default Avatar */}
+            {isOwner && updateInfo === false && (
+              <Avatar size="lg" src={userInfo.photoURL ?? 'https://bit.ly/broken-link'} mr="3" />
+            )}
+            {/* Edit Avatar */}
+            {isOwner && updateInfo && (
+              <Avatar
+                onClick={() => {
+                  console.log('아바타 클릭');
+                }}
+                _hover={{ color: 'black' }}
+                size="lg"
+                src={userInfo.photoURL ?? 'https://bit.ly/broken-link'}
+                mr="3"
+              >
+                {/* <AvatarBadge boxSize="1.25em" bg="blue.400"> */}
+                <Icon
+                  as={SmallAddIcon}
+                  pos="absolute"
+                  right="-3"
+                  bottom="0"
+                  rounded="full"
+                  p="1"
+                  boxSize="1.25em"
+                  color="white"
+                  bg="blue.400"
+                />
+                {/* </AvatarBadge> */}
+              </Avatar>
+            )}
             <Flex direction="column" justify="center" width="full">
               {/* Default UI _________________________________________*/}
               {updateInfo === false && (
