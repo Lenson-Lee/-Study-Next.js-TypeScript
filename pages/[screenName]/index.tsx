@@ -11,13 +11,12 @@ import {
   FormLabel,
   VStack,
   Input,
-  AvatarBadge,
+  Center,
 } from '@chakra-ui/react';
 import { GetServerSideProps, NextPage } from 'next';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import ResizeTextArea from 'react-textarea-autosize';
 import axios, { AxiosResponse } from 'axios';
-import { Icon, SmallAddIcon } from '@chakra-ui/icons';
 import FirebaseClient from '@/models/firebase_client';
 import MessageItem from '@/components/message_item';
 import { InMessage } from '@/models/message/in_message';
@@ -112,6 +111,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const { authUser } = UseAuth();
   const queryClient = useQueryClient();
 
+  const photoRef = useRef();
   // 사용자들이 질문을 남긴 목록을 조회
   // user id를 알아야 하기 때문에 authUser가 null이 아닐때만 동작
   // 변경되었을때 자동으로 API core을 뿌릴거라 useEffect 사용
@@ -285,26 +285,35 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
             {isOwner && updateInfo && (
               <Avatar
                 onClick={() => {
-                  console.log('아바타 클릭');
+                  console.log('아바타 클릭 - 파일 열기');
+                  document.getElementById('photo-file')?.click();
                 }}
-                _hover={{ color: 'black' }}
                 size="lg"
                 src={userInfo.photoURL ?? 'https://bit.ly/broken-link'}
                 mr="3"
+                overflow="hidden"
               >
-                {/* <AvatarBadge boxSize="1.25em" bg="blue.400"> */}
-                <Icon
-                  as={SmallAddIcon}
+                <Box
+                  w="full"
+                  h="full"
+                  bg="black"
                   pos="absolute"
-                  right="-3"
-                  bottom="0"
-                  rounded="full"
-                  p="1"
-                  boxSize="1.25em"
+                  opacity="0"
+                  _hover={{ opacity: '0.6' }}
+                  cursor="pointer"
                   color="white"
-                  bg="blue.400"
+                >
+                  <Center fontSize="sm" my="5">
+                    사진 변경
+                  </Center>
+                </Box>
+                <Input
+                  id="photo-file"
+                  type="file"
+                  size="sm"
+                  display="none"
+                  //  ref={photoRef}
                 />
-                {/* </AvatarBadge> */}
               </Avatar>
             )}
             <Flex direction="column" justify="center" width="full">
@@ -544,19 +553,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
             />
           ))}
         </VStack>
-        {totalPages > page && (
-          <Button
-            width="full"
-            mt="2"
-            fontSize="sm"
-            onClick={() => {
-              setPage((p) => p + 1);
-            }}
-            // leftIcon={<TriangleDownIcon />}
-          >
-            더보기
-          </Button>
-        )}
+        {}
       </Box>
     </ServiceLayout>
   );
