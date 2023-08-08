@@ -51,7 +51,7 @@ async function findAllName(_req: NextApiRequest, res: NextApiResponse) {
 
 /** 유저 정보 수정하기 */
 async function update(req: any, res: NextApiResponse) {
-  const { uid, email, displayName, introduce } = req;
+  const { uid, email, displayName, introduce, updatePhoto } = req;
 
   if (uid === undefined || uid === null) {
     throw new BadReqError('uid -> 누락되었어요.');
@@ -65,8 +65,11 @@ async function update(req: any, res: NextApiResponse) {
   if (email === undefined || email === null) {
     throw new BadReqError('email -> 누락되었어요.');
   }
+  if (updatePhoto === undefined || email === null) {
+    throw new BadReqError('updatePhoto -> 누락되었어요.');
+  }
 
-  const updateResult = await MemberModel.update({ uid, email, displayName, introduce });
+  const updateResult = await MemberModel.update({ uid, email, displayName, introduce, updatePhoto });
   if (updateResult.result === true) {
     return res.status(200).json(updateResult);
   }

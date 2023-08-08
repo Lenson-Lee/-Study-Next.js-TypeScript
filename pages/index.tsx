@@ -125,15 +125,14 @@ const IndexPage: NextPage<Props> = function (props) {
   );
 };
 export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) => {
-  console.log(query);
-
+  console.log('시작해용 : ', query);
   const protocol = process.env.PROTOCOL || 'http';
   const host = process.env.HOST || 'localhost';
   const port = process.env.PORT || '3000';
   const baseUrl = `${protocol}://${host}:${port}`;
 
   //any같은게 들어와서 뭘 받을지 특정한다.
-  const userList = await axios(`${baseUrl}/api/user.list`);
+  const userList = await axios.get(`${baseUrl}/api/user.list`);
 
   return { props: { userList: userList.data, baseUrl } };
 };

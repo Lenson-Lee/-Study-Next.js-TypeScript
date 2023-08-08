@@ -14,7 +14,7 @@ import {
   Center,
 } from '@chakra-ui/react';
 import { GetServerSideProps, NextPage } from 'next';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import ResizeTextArea from 'react-textarea-autosize';
 import axios, { AxiosResponse } from 'axios';
 import FirebaseClient from '@/models/firebase_client';
@@ -81,7 +81,7 @@ async function postMessage({
 
 /** 유저 정보 GET (Hydration으로 SSR과 연결) */
 const getData = async (props: any) => {
-  const { data } = await axios(`${props.baseUrl}/api/user.info/${props.screenName}`);
+  const { data } = await axios.get(`${props.baseUrl}/api/user.info/${props.screenName}`);
 
   return {
     userInfo: data,
@@ -97,11 +97,12 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const [messageListFetchTrigger, setMessageListFetchTrigger] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-
+  console.log('오류제거용', totalPages);
   /** 정보수정 On / Off */
-  const [updateInfo, setupdateInfo] = useState<boolean>(false);
-  const [updateName, setupdateName] = useState<string>('');
-  const [updateIntro, setupdateIntro] = useState<string>('');
+  const [updateInfo, setupdateInfo] = useState<boolean>(false); //정보수정 변경중 : true, 평상시 : false
+  const [updateName, setupdateName] = useState<string>(''); //변경하고자 하는 이름
+  const [updateIntro, setupdateIntro] = useState<string>(''); //변경하고자 하는 소개글
+  const [updatePhoto, setUpdatePhoto] = useState(); //변경하고자 하는 프로필이미지
   const toast = useToast();
 
   /** 실시간 유저 정보 (react-query)*/
@@ -111,7 +112,8 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const { authUser } = UseAuth();
   const queryClient = useQueryClient();
 
-  const photoRef = useRef();
+  // const photoRef = useRef();
+
   // 사용자들이 질문을 남긴 목록을 조회
   // user id를 알아야 하기 때문에 authUser가 null이 아닐때만 동작
   // 변경되었을때 자동으로 API core을 뿌릴거라 useEffect 사용
@@ -272,6 +274,52 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
 
   const isOwner = authUser !== null && authUser.uid === userInfo.uid;
 
+  const handleImage = async (e: any) => {
+    console.log(e);
+    const file = e.target.files[0];
+    if (!file) {
+      console.log('😱 파일이 없어요');
+    } else {
+      console.log('들어온 파일 : ', file);
+    }
+
+    // 이미지 화면에 띄우기
+    const reader = new FileReader();
+    // 파일을 불러오는 메서드, 종료되는 시점에 readyState는 Done(2)이 되고 onLoad 시작
+    reader.readAsDataURL(file);
+    reader.onload = (item: any) => {
+      if (reader.readyState === 2) {
+        // 파일 onLoad가 성공하면 2, 진행 중은 1, 실패는 0 반환
+        setUpdatePhoto(item.target.result);
+      }
+    };
+    // 이미지 파일을 formData에 담아서 서버에 보내고, 서버는 받은 이미지 파일을 S3에 저장하고 받은 URL 값을 클라이언트로 반환해준다.
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const res = await fetch('/api/members.update', {
+        method: 'post',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          uid: 'Q4m6vpYR2gd3iE7Uk3p43c2Rnqh2',
+          email: 'dmstjs7437@gmail.com',
+          displayName: '뮤뮤',
+          introduce: '하드코딩뮤뮤',
+          updatePhoto: formData,
+        }),
+      });
+      console.log('🤦‍♀️ 결과 : ', res);
+      // const image_URL = res.data.imageURL;
+    } catch (err) {
+      console.error(err);
+      toast({ title: '정보 수정 실패', position: 'top-right' });
+      return {
+        result: false,
+        message: '정보 수정 실패',
+      };
+    }
+  };
   return (
     <ServiceLayout title={`${userDisplayName}의 홈`} minH="100vh" backgroundColor="gray.50">
       <Box maxW="md" mx="auto" pt="6">
@@ -312,6 +360,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
                   type="file"
                   size="sm"
                   display="none"
+                  onChange={handleImage}
                   //  ref={photoRef}
                 />
               </Avatar>
@@ -582,7 +631,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
   // 서버사이드이기때문에 '/'만으로는 위치를 몰라 baseURL 생성
 
   const screenNameToStr = Array.isArray(screenName) ? screenName[0] : screenName;
-  const userInfoResp: AxiosResponse<ScreenNameUser> = await axios(`${baseUrl}/api/user.info/${screenName}`);
+
+  const userInfoResp: AxiosResponse<ScreenNameUser> = await axios.get(`${baseUrl}/api/user.info/${screenName}`);
 
   try {
     await queryClient.prefetchQuery(['userInfo'], () => getData({ baseUrl, screenName }));
