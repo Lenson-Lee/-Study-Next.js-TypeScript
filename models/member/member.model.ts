@@ -77,13 +77,13 @@ async function update({
   email,
   displayName,
   introduce,
-  updatePhoto,
+  photoURL,
 }: {
   uid: string;
   email: string;
   displayName: string;
   introduce: string;
-  updatePhoto: string;
+  photoURL: string;
 }): Promise<AddResult> {
   try {
     const updateResult = await FirebaseAdmin.getInstance().Firestore.runTransaction(async (transaction) => {
@@ -99,7 +99,7 @@ async function update({
         displayName,
         // email,
         introduce,
-        updatePhoto,
+        photoURL,
       };
       await transaction.update(memberRef, updateDate);
       await transaction.update(screenNameRef, updateDate);

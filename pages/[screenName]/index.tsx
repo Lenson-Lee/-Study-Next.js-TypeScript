@@ -12,6 +12,7 @@ import {
   VStack,
   Input,
   Center,
+  // Stack,
 } from '@chakra-ui/react';
 import { GetServerSideProps, NextPage } from 'next';
 import { useState } from 'react';
@@ -97,17 +98,18 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const [messageListFetchTrigger, setMessageListFetchTrigger] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  console.log('오류제거용', totalPages);
+  console.log('오류제거용 totalPages', totalPages);
   /** 정보수정 On / Off */
   const [updateInfo, setupdateInfo] = useState<boolean>(false); //정보수정 변경중 : true, 평상시 : false
   const [updateName, setupdateName] = useState<string>(''); //변경하고자 하는 이름
   const [updateIntro, setupdateIntro] = useState<string>(''); //변경하고자 하는 소개글
-  const [updatePhoto, setUpdatePhoto] = useState(); //변경하고자 하는 프로필이미지
+  const [updatePhoto, setUpdatePhoto] = useState<string>(''); //변경하고자 하는 프로필이미지
   const toast = useToast();
 
   /** 실시간 유저 정보 (react-query)*/
   const [userDisplayName, setUserDisplayName] = useState<string>('');
   const [userIntroduce, setUserIntroduce] = useState<string>('');
+  const [userPhotoURL, setUserPhotoURL] = useState<string>('');
 
   const { authUser } = UseAuth();
   const queryClient = useQueryClient();
@@ -170,12 +172,16 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
         page: number;
         size: number;
         content: InMessage[];
-      }>(`/api/messages.list?uid=${userInfo?.uid}&page=${page}&size=10`),
+      }>(`/api/messages.list?uid=${userInfo?.uid}&page=${page}&size=${5}`),
     {
       keepPreviousData: true,
       refetchOnWindowFocus: false,
       onSuccess: (data) => {
         setTotalPages(data.data.totalPages);
+
+        // const start = (page - 1) * 5; // 시작점 : (page-1) * size
+        // const end = page * 5; // 종료점 : page * size -1
+
         if (page === 1) {
           setMessageList([...data.data.content]);
           return;
@@ -198,13 +204,14 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
       onSuccess: (data: string | any) => {
         setUserDisplayName(data.data.displayName);
         setUserIntroduce(data.data.introduce);
+        setUserPhotoURL(data.data.photoURL);
       },
     },
   );
 
   // 사용자 정보 변경
   async function updateMember(props: any) {
-    const { uid, email, displayName, introduce } = props;
+    const { uid, email, displayName, introduce, photoURL } = props;
     try {
       await fetch('/api/members.update', {
         method: 'post',
@@ -214,6 +221,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
           email,
           displayName,
           introduce,
+          photoURL,
         }),
       });
     } catch (err) {
@@ -226,7 +234,8 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
     }
   }
   const updateMemMutate = useMutation(
-    (updateData: { uid: string; email: string; displayName: string; introduce: string }) => updateMember(updateData),
+    (updateData: { uid: string; email: string; displayName: string; introduce: string; photoURL: string }) =>
+      updateMember(updateData),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('userInfo');
@@ -275,7 +284,6 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
   const isOwner = authUser !== null && authUser.uid === userInfo.uid;
 
   const handleImage = async (e: any) => {
-    console.log(e);
     const file = e.target.files[0];
     if (!file) {
       console.log('😱 파일이 없어요');
@@ -285,6 +293,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
 
     // 이미지 화면에 띄우기
     const reader = new FileReader();
+
     // 파일을 불러오는 메서드, 종료되는 시점에 readyState는 Done(2)이 되고 onLoad 시작
     reader.readAsDataURL(file);
     reader.onload = (item: any) => {
@@ -293,32 +302,8 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
         setUpdatePhoto(item.target.result);
       }
     };
-    // 이미지 파일을 formData에 담아서 서버에 보내고, 서버는 받은 이미지 파일을 S3에 저장하고 받은 URL 값을 클라이언트로 반환해준다.
     const formData = new FormData();
     formData.append('image', file);
-
-    try {
-      const res = await fetch('/api/members.update', {
-        method: 'post',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          uid: 'Q4m6vpYR2gd3iE7Uk3p43c2Rnqh2',
-          email: 'dmstjs7437@gmail.com',
-          displayName: '뮤뮤',
-          introduce: '하드코딩뮤뮤',
-          updatePhoto: formData,
-        }),
-      });
-      console.log('🤦‍♀️ 결과 : ', res);
-      // const image_URL = res.data.imageURL;
-    } catch (err) {
-      console.error(err);
-      toast({ title: '정보 수정 실패', position: 'top-right' });
-      return {
-        result: false,
-        message: '정보 수정 실패',
-      };
-    }
   };
   return (
     <ServiceLayout title={`${userDisplayName}의 홈`} minH="100vh" backgroundColor="gray.50">
@@ -327,17 +312,16 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
           <Flex p="6">
             {/* Default Avatar */}
             {isOwner && updateInfo === false && (
-              <Avatar size="lg" src={userInfo.photoURL ?? 'https://bit.ly/broken-link'} mr="3" />
+              <Avatar size="lg" src={userPhotoURL ?? 'https://bit.ly/broken-link'} mr="3" />
             )}
             {/* Edit Avatar */}
             {isOwner && updateInfo && (
               <Avatar
                 onClick={() => {
-                  console.log('아바타 클릭 - 파일 열기');
                   document.getElementById('photo-file')?.click();
                 }}
                 size="lg"
-                src={userInfo.photoURL ?? 'https://bit.ly/broken-link'}
+                src={updatePhoto !== '' ? updatePhoto : userInfo.photoURL || 'https://bit.ly/broken-link'}
                 mr="3"
                 overflow="hidden"
               >
@@ -368,13 +352,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
             <Flex direction="column" justify="center" width="full">
               {/* Default UI _________________________________________*/}
               {updateInfo === false && (
-                <Default
-                  isOwner={isOwner}
-                  displayName={userDisplayName}
-                  email={userInfo.email}
-                  intro={userIntroduce}
-                  // photoURL={userInfo.photoURL}
-                />
+                <Default isOwner={isOwner} displayName={userDisplayName} email={userInfo.email} intro={userIntroduce} />
               )}
               {/* Editting UI _________________________________________ */}
               {isOwner && updateInfo && (
@@ -454,6 +432,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
                         displayName: updateName || userInfo.displayName || 'sampleName',
                         email: userInfo.email ? userInfo.email : 'sample@mail.com',
                         introduce: updateIntro,
+                        photoURL: updatePhoto || userInfo.photoURL,
                       });
                       // const infoResp = await updateMember(postData);
                       setMessage('');
@@ -474,6 +453,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
                       setupdateInfo(!updateInfo);
                       setupdateName('');
                       setupdateIntro('');
+                      setUpdatePhoto('');
                     }}
                     width="full"
                     mt="3"
@@ -487,6 +467,8 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
             </Flex>
           </Flex>
         </Box>
+
+        {/* 게시글 작성 BOX */}
         <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb="2" bg="white">
           <Flex align="center" p="2">
             <Avatar
@@ -577,6 +559,8 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
             </FormLabel>
           </FormControl>
         </Box>
+
+        {/* 메시지 리스트 */}
         <VStack spacing="12px" mt="6">
           {messageList.map((msgData) => (
             <MessageItem
@@ -585,7 +569,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
               uid={userInfo.uid}
               screenName={screenName}
               displayName={userInfo.displayName ?? ''}
-              photoURL={userInfo.photoURL ?? 'https://bit.ly/broken-link'}
+              photoURL={userPhotoURL ?? 'https://bit.ly/broken-link'}
               isOwner={isOwner}
               onSendComplete={() => {
                 // setMessageListFetchTrigger((prev) => !prev);
@@ -601,8 +585,26 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
               // deleteMessage.mutate()}
             />
           ))}
+
+          {/* Paging Button */}
+          {/* <Stack spacing={2} direction="row" align="center">
+            {
+              // Array(totalPages).fill(
+              Array.from(Array(totalPages), (item, index) => (
+                <Button
+                  key={index}
+                  onClick={() => {
+                    setPage(index + 1);
+                  }}
+                  fontSize="sm"
+                  color={index + 1 === page ? 'blue.400' : 'gray.400'}
+                >
+                  {index + 1}
+                </Button>
+              ))
+            }
+          </Stack> */}
         </VStack>
-        {}
       </Box>
     </ServiceLayout>
   );
