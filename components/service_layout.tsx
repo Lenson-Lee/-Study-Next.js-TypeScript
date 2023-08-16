@@ -7,7 +7,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const ServiceLayout: React.FC<Props & BoxProps> = function ({ title = 'blah x2', children, ...boxProps }) {
+export const ServiceLayout: React.FC<Props & BoxProps> = function ({ title = 'chatanything', children, ...boxProps }) {
   /* eslint-disable react/jsx-props-no-spreading */
   return (
     <Box {...boxProps}>

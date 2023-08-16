@@ -1,11 +1,35 @@
 import { Avatar, Box, Button, Flex, IconButton, Menu, MenuButton, MenuItem, MenuList, Spacer } from '@chakra-ui/react';
 import Link from 'next/link';
+
+import { useEffect, useState } from 'react';
 import { UseAuth } from '@/contexts/auth_user.context';
 
 const GNB = function () {
   const { loading, authUser, signOut } = UseAuth();
 
   const { signInWithGoogle } = UseAuth();
+
+  const screenName = authUser?.email?.replace('@gmail.com', '');
+  const [photo, setPhoto] = useState('');
+
+  async function userPhoto() {
+    if (screenName) {
+      fetch(`/api/user.info/${screenName}`, {
+        method: 'GET',
+      })
+        .then(async (res) => res.json())
+        .then((data) => {
+          setPhoto(data.photoURL);
+        })
+        .catch((err) => {
+          console.log('[GNB]', err);
+        });
+    }
+  }
+
+  useEffect(() => {
+    userPhoto();
+  }, [authUser, photo]);
 
   const loginBtn = (
     <Button
@@ -24,13 +48,13 @@ const GNB = function () {
     <Menu>
       <MenuButton
         as={IconButton}
-        icon={<Avatar size="md" src={authUser?.photoURL ?? 'https://bit.ly/broken-link'} />}
+        icon={<Avatar size="md" src={photo || 'https://bit.ly/broken-link'} />}
         borderRadius="full"
       />
       <MenuList>
         <MenuItem
           onClick={() => {
-            window.location.href = `/${authUser?.email?.replace('@gmail.com', '')}`;
+            window.location.href = `/${screenName}`;
           }}
         >
           사용자 홈으로 이동

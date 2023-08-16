@@ -51,7 +51,7 @@ const MessagePage: NextPage<Props> = function ({ userInfo, messageData: initMsgD
       <Head>
         <meta property="og:image" content={thumbnailImgUrl} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@blahx2" />
+        <meta name="twitter:site" content="@chatanything" />
         <meta name="twitter:title" content={messageData.message} />
         <meta name="twitter:image" content={thumbnailImgUrl} />
       </Head>

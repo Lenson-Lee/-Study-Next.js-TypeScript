@@ -311,9 +311,7 @@ const UserHomePage: NextPage<Props> = function ({ userInfo, screenName }) {
         <Box borderWidth="1px" borderRadius="lg" overflow="hidden" mb="2" bg="white">
           <Flex p="6">
             {/* Default Avatar */}
-            {isOwner && updateInfo === false && (
-              <Avatar size="lg" src={userPhotoURL ?? 'https://bit.ly/broken-link'} mr="3" />
-            )}
+            {updateInfo === false && <Avatar size="lg" src={userPhotoURL ?? 'https://bit.ly/broken-link'} mr="3" />}
             {/* Edit Avatar */}
             {isOwner && updateInfo && (
               <Avatar
